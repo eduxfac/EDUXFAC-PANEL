@@ -1,0 +1,28 @@
+{
+  "source_D_only": true,
+  "real_data": false,
+  "tables": 49,
+  "prior_rls": 45,
+  "final_rls": 44,
+  "global_no_rls": [
+    "eduxfac_migraciones",
+    "permisos",
+    "rol_permisos",
+    "roles",
+    "web_schema_migrations"
+  ],
+  "validado": 44,
+  "no_aplica": 5,
+  "pending": 0,
+  "api_endpoints": 106,
+  "internal_endpoints": 18,
+  "static_routes": 3,
+  "image": "eduxfac-fase10-code:20261012",
+  "image_id": "sha256:815e23d6cb14a0314b729202ab49872ac28271f4934dbdbf2b7576c58b64e982",
+  "source_hashes": 191,
+  "official_sources": {
+    "panel": "D:/EDUXFAC/PANEL EDUXFAC/01_TRABAJO_ACTUAL/PANEL_EDUXFAC_ACTUAL",
+    "web": "D:/EDUXFAC/EDUXFAC WEB/01_TRABAJO_ACTUAL/EDUXFAC_WEB_ACTUAL"
+  },
+  "go_no_go": "NO-GO REAL / GO TECNICO LAB"
+}

@@ -1,0 +1,1 @@
+export function boundedRequests({max=30,windowMs=60000}={}){const map=new Map();return key=>{const now=Date.now();let b=map.get(key);if(!b||now-b.at>=windowMs){if(map.size>5000)map.clear();b={at:now,n:0};map.set(key,b);}return ++b.n<=max;};}

@@ -1,0 +1,12 @@
+# PROPUESTA, NO EJECUTADA. Primero inventariar reglas actuales y conservar SSH autorizado.
+# Sustituir IP_ADMIN_CONFIRMADA por IP/CIDR aprobada antes de aplicar.
+ufw default deny incoming
+ufw default allow outgoing
+ufw allow from IP_ADMIN_CONFIRMADA to any port 22 proto tcp
+ufw allow 80/tcp
+ufw allow 443/tcp
+ufw deny 5432/tcp
+ufw deny 3000/tcp
+ufw deny 4310/tcp
+# Verificar SSH alternativo y consola de recuperación; enable solamente en ventana autorizada.
+# IPv6 debe mantener la misma política. No reemplazar reglas productivas a ciegas.

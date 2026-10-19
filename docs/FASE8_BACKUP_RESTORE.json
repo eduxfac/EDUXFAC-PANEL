@@ -1,0 +1,20 @@
+{
+  "backup": {
+    "estado": "OK",
+    "bytes": 10704372,
+    "duracion_ms": 438
+  },
+  "restore": {
+    "estado": "OK",
+    "source_database": "panel_f8_644d149849c8",
+    "target_database": "panel_f8_644d149849c8",
+    "duracion_ms": 869,
+    "privileges_must_be_reapplied": true
+  },
+  "baseline": {
+    "clients": 2000,
+    "payments": 10000,
+    "history": 50000,
+    "queue": 5012
+  }
+}

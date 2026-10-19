@@ -1,0 +1,204 @@
+{
+  "date": "2026-10-12T18:41:56.323Z",
+  "protectedFiles": [
+    {
+      "path": "tests\\admin-dashboard.test.mjs",
+      "ok": true
+    },
+    {
+      "path": "tests\\auth.test.mjs",
+      "ok": true
+    },
+    {
+      "path": "tests\\integration-operations.test.mjs",
+      "ok": true
+    },
+    {
+      "path": "tests\\licensing.test.mjs",
+      "ok": true
+    },
+    {
+      "path": "tests\\web-company-states.test.mjs",
+      "ok": true
+    },
+    {
+      "path": "tests\\web-onboarding.test.mjs",
+      "ok": true
+    },
+    {
+      "path": "tests\\web-plans.test.mjs",
+      "ok": true
+    },
+    {
+      "path": "tests\\web-subscriptions.test.mjs",
+      "ok": true
+    },
+    {
+      "path": "database\\migrations\\001_licensing.sql",
+      "ok": true
+    },
+    {
+      "path": "database\\schema.sql",
+      "ok": true
+    },
+    {
+      "path": "database\\web-migrations\\001_web_onboarding.sql",
+      "ok": true
+    },
+    {
+      "path": "database\\web-migrations\\002_web_company_states.sql",
+      "ok": true
+    },
+    {
+      "path": "database\\web-migrations\\003_web_plans.sql",
+      "ok": true
+    },
+    {
+      "path": "database\\web-migrations\\004_web_subscriptions.sql",
+      "ok": true
+    },
+    {
+      "path": "database\\web-migrations\\005_web_operations.sql",
+      "ok": true
+    },
+    {
+      "path": "database\\web-migrations\\006_panel_dashboard.sql",
+      "ok": true
+    }
+  ],
+  "backupFiles": [
+    {
+      "path": "server/app.mjs",
+      "ok": true,
+      "modified": true
+    },
+    {
+      "path": "server/admin-read-service.mjs",
+      "ok": true,
+      "modified": true
+    },
+    {
+      "path": "public/app.js",
+      "ok": true,
+      "modified": true
+    },
+    {
+      "path": "public/index.html",
+      "ok": true,
+      "modified": true
+    },
+    {
+      "path": "public/style.css",
+      "ok": true,
+      "modified": true
+    },
+    {
+      "path": "public/admin-dashboard.js",
+      "ok": true,
+      "modified": true
+    },
+    {
+      "path": ".env.example",
+      "ok": true,
+      "modified": true
+    },
+    {
+      "path": "package.json",
+      "ok": true,
+      "modified": true
+    },
+    {
+      "path": "demo/INICIAR_DEMO.mjs",
+      "ok": true,
+      "modified": true
+    },
+    {
+      "path": "docs/CHECKLIST_ADOPCION_PRODUCCION.md",
+      "ok": true,
+      "modified": true
+    },
+    {
+      "path": "docs/PLAN_ROLLBACK.md",
+      "ok": true,
+      "modified": true
+    },
+    {
+      "path": "server/integration-queue.mjs",
+      "ok": true,
+      "modified": true
+    }
+  ],
+  "preserved": [
+    {
+      "path": "data/panel.sqlite",
+      "size": 126976,
+      "sha256_unchanged": true,
+      "mtime_unchanged": true,
+      "size_unchanged": true
+    },
+    {
+      "path": "data/license-private-test.pem",
+      "size": 119,
+      "sha256_unchanged": true,
+      "mtime_unchanged": true,
+      "size_unchanged": true
+    },
+    {
+      "path": "database\\migrations\\001_licensing.sql",
+      "size": 2800,
+      "sha256_unchanged": true,
+      "mtime_unchanged": true,
+      "size_unchanged": true
+    },
+    {
+      "path": "database\\schema.sql",
+      "size": 1792,
+      "sha256_unchanged": true,
+      "mtime_unchanged": true,
+      "size_unchanged": true
+    },
+    {
+      "path": "database\\web-migrations\\001_web_onboarding.sql",
+      "size": 1823,
+      "sha256_unchanged": true,
+      "mtime_unchanged": true,
+      "size_unchanged": true
+    },
+    {
+      "path": "database\\web-migrations\\002_web_company_states.sql",
+      "size": 1745,
+      "sha256_unchanged": true,
+      "mtime_unchanged": true,
+      "size_unchanged": true
+    },
+    {
+      "path": "database\\web-migrations\\003_web_plans.sql",
+      "size": 3363,
+      "sha256_unchanged": true,
+      "mtime_unchanged": true,
+      "size_unchanged": true
+    },
+    {
+      "path": "database\\web-migrations\\004_web_subscriptions.sql",
+      "size": 3498,
+      "sha256_unchanged": true,
+      "mtime_unchanged": true,
+      "size_unchanged": true
+    },
+    {
+      "path": "database\\web-migrations\\005_web_operations.sql",
+      "size": 7601,
+      "sha256_unchanged": true,
+      "mtime_unchanged": true,
+      "size_unchanged": true
+    },
+    {
+      "path": "database\\web-migrations\\006_panel_dashboard.sql",
+      "size": 726,
+      "sha256_unchanged": true,
+      "mtime_unchanged": true,
+      "size_unchanged": true
+    }
+  ],
+  "all_ok": true
+}

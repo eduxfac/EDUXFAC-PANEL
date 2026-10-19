@@ -1,0 +1,346 @@
+{
+  "phase": "12B",
+  "utc": "2026-10-13T14:05:32.7138814Z",
+  "result": "GO PARA CONTINUAR DEPLOY PILOTO",
+  "state": "WEB_PILOTO_HTTPS; PANEL_WEB_HTTPS_OK; HEALTH_8_OK; PM2_SAVED; OLD_EDUXFAC_UNMODIFIED",
+  "continuation": {
+    "passed": 460,
+    "failed_unresolved": 0,
+    "historical_incidents_resolved": 2,
+    "prior_passed": 371,
+    "runtime_https": 3,
+    "smoke_https": 67,
+    "pm2_startup": 10,
+    "health_rollback": 8,
+    "public_acl": 1,
+    "helper_tests_separate": 15,
+    "incident_readonly_separate": 9,
+    "regression_repeated": false,
+    "count_is_unique_test_universe": false
+  },
+  "baseline_F11": {
+    "passed": 1481,
+    "failed": 0,
+    "reexecuted": false,
+    "critical_hashes_unchanged": 18
+  },
+  "difference": "ACLARADA: venta de prueba coherente; trazabilidad READ-ONLY22/22; sin escrituras FASE12B en eduxfac",
+  "manual_command": "NINGUNO PENDIENTE. ROLLBACK MANUAL SOLO EN CONTINGENCIA.",
+  "manual_execution_condition": "FASE12B completada; no cliente real; acciones privilegiadas nuevas requieren ejecucion manual",
+  "evidence": [
+    {
+      "name": "ADMIN_TLS_PRECHECK.json",
+      "sha256": "836f82da301a4a055c83ead98bfb04808cfc1c64a1ec9af0b2a7ad27f06de8ca",
+      "bytes": 327
+    },
+    {
+      "name": "ADMIN_TLS_PREPARED.json",
+      "sha256": "72c4d09cc9c57203cf00734ae51b0bc44aa321e99470408c2ee651bb9f003c9d",
+      "bytes": 980
+    },
+    {
+      "name": "AUDITORIA_DB_APP_READONLY.json",
+      "sha256": "14945c56d7845c9bc59feec8417bc3ea47e08a62dc32ca40c8c0170a5c119916",
+      "bytes": 5972
+    },
+    {
+      "name": "BACKUP_PANEL_INICIAL.json",
+      "sha256": "fa899e9e8d43a435ee5cb9d29589bb990023a3972d9386e41a09eefb45e2e348",
+      "bytes": 458
+    },
+    {
+      "name": "BACKUP_PILOTO_VACIO.json",
+      "sha256": "e43ceb60c042f33e02ff9f8aab6d6fb086fec38442dbb43cacfa2c584d48d93f",
+      "bytes": 715
+    },
+    {
+      "name": "BACKUP_WEB_PILOTO_INICIAL.json",
+      "sha256": "8efaca82416688eaf220a8045568d99c9375a79b366e8c99fae9f191599d7c28",
+      "bytes": 2019
+    },
+    {
+      "name": "BACKUP_WEB_REAL_MANIFEST.json",
+      "sha256": "0c6f9fa5ac201c98bc66f37357378f328c99a20a5e768b6ee0735899aaceacd3",
+      "bytes": 2911
+    },
+    {
+      "name": "BASES_ROLES_TLS_PILOTO_VERIFICADOS.json",
+      "sha256": "5e8bc82e409654f3773ce5455d1cf3c8a8afdbb07575f7b624a79c2bcb6d0342",
+      "bytes": 1432
+    },
+    {
+      "name": "CIERRE_HTTPS_INTEGRACION_AB.json",
+      "sha256": "1ad28c87bd7371ca4238757b1402ad5d92f4f803352d62465e1a7817c73ec702",
+      "bytes": 5795
+    },
+    {
+      "name": "CIERRE_SESION_FASE12B.json",
+      "sha256": "1426feced3cec95321d780df8cd13c3184636b849b7e924dc031b65f1d012122",
+      "bytes": 1281
+    },
+    {
+      "name": "COMPARACION_WEB_COMPLETA.json",
+      "sha256": "24729b356f8a4d376a6d23b4bfe63de76e07d42974e1db73c0fb645e76837a99",
+      "bytes": 26562
+    },
+    {
+      "name": "CONTROLES_PILOTO_REANUDACION_READONLY.json",
+      "sha256": "928503c4eff3eb08f59dfd0aac6f6af7b0faf692e22cb9886fc54705a3694e15",
+      "bytes": 2725
+    },
+    {
+      "name": "CONTROLES_PRESERVACION_Y_DRY_RUN.json",
+      "sha256": "ee8cecd9cb40d7af6ca529b9eb3148bd5e3c42c74cf4529d214c8bb16597f873",
+      "bytes": 17245
+    },
+    {
+      "name": "DECISIONES_WEB_ARCHIVO_POR_ARCHIVO.json",
+      "sha256": "03bf6d62a94e208bd6ee6d2a9ca6f5c8fbe785c2dd56053f558443c248da8e84",
+      "bytes": 35301
+    },
+    {
+      "name": "DIFERENCIA_CONTEOS_ANTIGUA.json",
+      "sha256": "e1addabddf5bd96111c639e1ec8d0a46e9ada3b01ef6846d965f3e3fb27757d0",
+      "bytes": 653
+    },
+    {
+      "name": "DIFERENCIAS_FUNCIONALES_METADATA.json",
+      "sha256": "f90b416a95a34783bff12689f1dde0dceaaa0ee325c774140efefd61e816da6d",
+      "bytes": 2404
+    },
+    {
+      "name": "ENSAYO_MIGRACIONES_ROLLBACK.json",
+      "sha256": "e59db94a5a62264dd83f7c9715cb7c1c54b6c285ce05e8cdbb4010ed5235458c",
+      "bytes": 3308
+    },
+    {
+      "name": "ENSAYO_RLS_AB_ROLLBACK.json",
+      "sha256": "24334a9ca1ce209aec30d4721988c79240733cd21edb0d22d485ce0b93ea454b",
+      "bytes": 2060
+    },
+    {
+      "name": "ESTRUCTURA_WEB_VPS.json",
+      "sha256": "4379d53a3f21d6d1b8c4239e2f0d5ddcf3bdb8ef014b93dabced388da91f4194",
+      "bytes": 13873
+    },
+    {
+      "name": "HEALTH_FINAL_READONLY.json",
+      "sha256": "2d9b2639847c3a9cea2e45a056ac7fca033895af2d2547f9f22fd95e17f24762",
+      "bytes": 1163
+    },
+    {
+      "name": "HEALTH_ROLLBACK_CIERRE_FINAL.json",
+      "sha256": "29849fa44b11b1c6d4877390512ba50ab5a527ce50ab03417235aab0dad3d433",
+      "bytes": 1249
+    },
+    {
+      "name": "INTEGRACION_SMOKE_AB_PILOTO.json",
+      "sha256": "5e5135a808f6e8a9ff3c067f990e8e9f84b6f8cc9d6a3e78a8b21275ea32e2e3",
+      "bytes": 7398
+    },
+    {
+      "name": "LOGIN_RESTORE_WEB_LEGADO.json",
+      "sha256": "25d9d296c798dfba89df2bf4b0be03fd3ad166364c341d1184ceaff988695e52",
+      "bytes": 925
+    },
+    {
+      "name": "MANIFEST_MIGRATIONS_D.json",
+      "sha256": "6110cf18c05485138289aabe4040311f1f102907b05882c62a9736ce7fdb5329",
+      "bytes": 18979
+    },
+    {
+      "name": "MANIFIESTO_WEB_VPS_Y_PM2.json",
+      "sha256": "b7d04e00641e85ecd3422fd50c6600a6bf89e3fe2bfa14ba0b8227f95bbce86e",
+      "bytes": 7322
+    },
+    {
+      "name": "NODE24_INSTALADO.json",
+      "sha256": "2c587f77a697167fc2a73e1c298b1e2dfc83e9c37122d66c09e57337167cd248",
+      "bytes": 629
+    },
+    {
+      "name": "NODE24_PM2_ENV_VALIDACION.json",
+      "sha256": "c50b0b552bd06c70c3c3abcb5bdbe627f1037f85c8dc11558e6674e8967a774f",
+      "bytes": 1242
+    },
+    {
+      "name": "PANEL_HTTPS_RUNTIME_FINAL.json",
+      "sha256": "55717cb1702c2ab2dcbca063bf386d366e27c6c718c4bf593a0dfe2edce1545a",
+      "bytes": 195
+    },
+    {
+      "name": "PANEL_PILOTO_PREPARADO.json",
+      "sha256": "bc8042d5f54067f89b4ea8871d96dfefd807bda7b988e84a36f225d3b5944d6f",
+      "bytes": 1761
+    },
+    {
+      "name": "PANEL_RESTORE_DB_CREATED.json",
+      "sha256": "59b180abcd7cc9a61f158f55dc42da767b7ca3858204bfea418b70c238bbf5c6",
+      "bytes": 247
+    },
+    {
+      "name": "PILOT_PREPARE_DONE.json",
+      "sha256": "1622606aaf83053cc2b7a972ea2e1bbc444974b02c04bd1b54104e876f25ff65",
+      "bytes": 1489
+    },
+    {
+      "name": "PLAN_RLS_WEB_REVISAR.json",
+      "sha256": "b326bcac9ea555a56d217770c5b7bdc3cea3fe59766c091ef0250561031ab8ce",
+      "bytes": 193815
+    },
+    {
+      "name": "PM2_PANEL_PILOTO.json",
+      "sha256": "b3d8b9fe9db492f9265cb51fae8fbeb049018505c93114d3e6b94a20c485d73c",
+      "bytes": 768
+    },
+    {
+      "name": "PM2_STARTUP_FINAL_VALIDADO.json",
+      "sha256": "3f92d7d9d6384ae29ff9280336a037136ce4fc39b8fbfb27a28fb70039b46b17",
+      "bytes": 1092
+    },
+    {
+      "name": "PM2_WEB_PILOTO.json",
+      "sha256": "fc6f6916c8cc80e602f9ed17f4712f2d045c0919ed5e99fcf16c1019d4adea3e",
+      "bytes": 648
+    },
+    {
+      "name": "PRESERVACION_FASE11_CIERRE_FINAL.json",
+      "sha256": "5f0c57704c5a8bcbc10da7e2821457e25a7bdf2bb20b955c9167f9b811cecd51",
+      "bytes": 6410
+    },
+    {
+      "name": "PRESERVACION_FASE11.json",
+      "sha256": "31b0f4a47b3cbeaf863d8e093fb7360037de9ff2fff69eec45a90855ede9b88a",
+      "bytes": 5477
+    },
+    {
+      "name": "PUBLIC_ACL_FINAL.json",
+      "sha256": "c691c0b2b3fac83a9e650dbab5a9b4864abaf3e518a64a705318e51fa7ba7190",
+      "bytes": 246
+    },
+    {
+      "name": "READONLY_ADMIN.json",
+      "sha256": "60f29659542b010ecd8a9c53f24bc563e257f84ac7d6497fba719d8fc8157675",
+      "bytes": 11462
+    },
+    {
+      "name": "RESTORE_PANEL_CLONE_VALIDADO.json",
+      "sha256": "4acc055399b0438bebbf32b7ac77a3ab90eb795fd5db574bc26cc0ddb451ff28",
+      "bytes": 2556
+    },
+    {
+      "name": "RESTORE_WEB_CLONE_VALIDADO.json",
+      "sha256": "c2d1b45a3534529bb1c73147ddb8ce9fc7169c1197c0df71433a716a0e7b3751",
+      "bytes": 478
+    },
+    {
+      "name": "RESTORE_WEB_PILOTO_VALIDADO.json",
+      "sha256": "a42898f8ee58081b2f5eecea8dbf2c8a4720d029b437cb9b842e0fbcdb1b92e5",
+      "bytes": 2810
+    },
+    {
+      "name": "SMOKE_PANEL_PILOTO.json",
+      "sha256": "4c271072cfeee4b76b52e701e66b4564cb05ec0f64da69e56cdec385597b8605",
+      "bytes": 4036
+    },
+    {
+      "name": "SMOKE_RESTORE_PANEL.json",
+      "sha256": "d2141a61c11cd804ef31d26ce2560739cb0bd6e1c01c2ae6beb2228ca54fdfad",
+      "bytes": 1035
+    },
+    {
+      "name": "SMOKE_RESTORE_WEB_PILOTO.json",
+      "sha256": "e1670ccc7e71d5549acdd21c801ad978f534cc4b496bd20a361fd67e7a6d5f72",
+      "bytes": 1086
+    },
+    {
+      "name": "TRAZABILIDAD_VENTA_READONLY.json",
+      "sha256": "729628d08c623451e4594f76237409ca0ca9fe073f3c63c649098182073ab9f8",
+      "bytes": 3845
+    },
+    {
+      "name": "VALIDACION_CODIGO_HOME.json",
+      "sha256": "7a58b8bc8b49223e942f380b77fc5ca16755ecd9ee9203f134d0523b36b75426",
+      "bytes": 7166
+    },
+    {
+      "name": "VALIDACION_HTTPS_TRES_DOMINIOS.json",
+      "sha256": "31db0b965c583c1b563982b00bb71434169dad222ac309f574c581a92ceff0eb",
+      "bytes": 2032
+    },
+    {
+      "name": "VERIFICACION_CLONE_EXISTENTE.json",
+      "sha256": "f0fae50dc17d69913bc5608362b77aa29fb680a43585361391cf53db6bfaf27e",
+      "bytes": 372
+    },
+    {
+      "name": "VERIFICACION_CLONE_PANEL_EXISTENTE.json",
+      "sha256": "5e801e861c770b0f08a74674ab20d7e5b85868dc45c736d182c4b6f53bc036dd",
+      "bytes": 370
+    },
+    {
+      "name": "VERIFICACION_CLONE_WEB_PILOTO_EXISTENTE.json",
+      "sha256": "62dde8a705f7ec10e1b47eeaca8b239368f0dc0a6d46ef51b3c96784f26743b1",
+      "bytes": 364
+    },
+    {
+      "name": "WEB_PILOT_ROUTE_V2.json",
+      "sha256": "99c3e78107ae6fdfc54d077faed83b062742305fffa84805436e5384688a2057",
+      "bytes": 1811
+    },
+    {
+      "name": "WEB_PILOTO_SCHEMA_APLICADO.json",
+      "sha256": "eae6800e2d0288c1be42e3bb0630c31838aef0d022c6a5b1bfde9b19274e35f9",
+      "bytes": 23008
+    },
+    {
+      "name": "WEB_RESTORE_DB_CREATED.json",
+      "sha256": "eb540c2aaebf82da716d2966dedc6739fa3460464c75774ca5b5a1cf67f1b525",
+      "bytes": 243
+    },
+    {
+      "name": "WEB_ROUTE_INCIDENT_READONLY.json",
+      "sha256": "55288059882a576990e6b309c7ee425764f2cfc7f765b06622a1e23001bf3ec9",
+      "bytes": 3437
+    },
+    {
+      "name": "WEB_ROUTE_PRECHECK.json",
+      "sha256": "b33586b3d3d69158c1acabbb35ac37f5bcb6a242a012594319669fd764475d3b",
+      "bytes": 500
+    },
+    {
+      "name": "WEB_ROUTE_V2_LOCAL_TESTS.json",
+      "sha256": "7fa020bb5613a348d31d0c61924cca047f56daad83b6b0760dee811b290f24cf",
+      "bytes": 1615
+    },
+    {
+      "name": "WEB_ROUTE_V2_UPLOAD_VERIFIED.json",
+      "sha256": "dadd1bbc541ee263424b9cb5ea2e63e4ee15138e63181947face879987cca56c",
+      "bytes": 455
+    }
+  ],
+  "docs_originals_backup": "D:\\EDUXFAC\\PANEL EDUXFAC\\03_RESPALDOS\\FASE12B_DOCUMENTACION_PRE_CIERRE_20261013_0807",
+  "manual_script_sha256": "6d48615442e6e5ae7ce8caf6dc9b447e96656cd8ddccd087afcd661ffc5bcb86",
+  "route_incident": {
+    "readonly_passed": 9,
+    "readonly_failed": 0,
+    "helper_passed": 15,
+    "helper_failed": 0,
+    "rollback_verified": true,
+    "failed_response_retained": false,
+    "cause_exactly_proven": false,
+    "confirmed_defect": "immediate single health probe after asynchronous reload",
+    "v2_uploaded": true,
+    "v2_executed": true,
+    "resolved": true
+  },
+  "next_real_customer_gates": [
+    "autorizacion especifica",
+    "cambio contraseña inicial",
+    "backup offsite retencion restore RTO-RPO",
+    "capacidad SLO alertas ventanas",
+    "workers explicitamente autorizados",
+    "tratamiento fixtures",
+    "reboot no probado"
+  ]
+}

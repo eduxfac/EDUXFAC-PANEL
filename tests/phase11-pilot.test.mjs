@@ -1,0 +1,31 @@
+
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {panelEnvironment} from '../server/environment-mode.mjs';
+import {migrationManifest,classifyAdoption,validatePilotEnvironment} from '../server/pilot-preflight.mjs';
+import {createRequire} from 'node:module';
+test('FASE11 bandera pública PILOTO no expone env ni credenciales',()=>{const r=panelEnvironment({EDUXFAC_DATA_MODE:'PILOTO',PANEL_DATABASE_URL:'FAKE_MUST_NOT_APPEAR'});assert.deepEqual(r,{mode:'PILOTO',label:'ENTORNO PILOTO'});});
+test('FASE11 DEMO no se presenta PILOTO',()=>assert.equal(panelEnvironment({NODE_ENV:'test'}).mode,'DEMO'));
+test('FASE11 producción no declarada se identifica sin ocultarse como DEMO',()=>assert.equal(panelEnvironment({NODE_ENV:'production'}).mode,'NO_DECLARADO'));
+test('FASE11 modo inválido bloqueado',()=>assert.throws(()=>panelEnvironment({EDUXFAC_DATA_MODE:'pilot'})));
+test('FASE11 migraciones Panel exactas 001 a008 con hash',()=>{const m=migrationManifest('panel');assert.equal(m.length,8);assert.equal(m[0].version,'001_base');assert.equal(m.at(-1).version,'008_roles_security');assert.ok(m.every(r=>r.sha256.length===64));});
+test('FASE11 manifest WEB incluye orden real y etapas embebidas',()=>{const m=migrationManifest('web');assert.equal(m.length,15);assert.equal(m[1].version,'ensureReturnsSchema');assert.equal(m.at(-1).version,'006_operacion_workers');});
+test('FASE11 manifest no cambia al repetir la consulta offline',()=>assert.deepEqual(migrationManifest('web'),migrationManifest('web')));
+test('FASE11 tipo de DB inválido no genera plan',()=>assert.throws(()=>migrationManifest('otro')));
+const row={id:'FAKE_A',ruc:'20900000001',codigo:'control_a',estado:'ACTIVO',plan:'BASICO',suscripcion_id:'FAKE_SUB',suscripcion_requerida:true,estado_suscripcion:'ACTIVA',inicio:'2026-01-01',vencimiento:'2027-01-01',usuarios:1,sucursales:1};
+test('FASE11 adopción íntegra sin anomalías',()=>assert.deepEqual(classifyAdoption([row])[0].issues,[]));
+for(const [name,data,issue]of [['plan',{plan:null},'SIN_PLAN'],['suscripción',{suscripcion_id:null},'SIN_SUSCRIPCION'],['vencimiento',{vencimiento:null},'SIN_VENCIMIENTO'],['fecha invertida',{inicio:'2028-01-01'},'INCONSISTENCIAS'],['RUC inválido',{ruc:'1'},'INCONSISTENCIAS'],['activo sin exigir suscripción',{suscripcion_requerida:false},'INCONSISTENCIAS']])test('FASE11 adopción detecta '+name,()=>assert.ok(classifyAdoption([{...row,...data}])[0].issues.includes(issue)));
+test('FASE11 duplicado de RUC normalizado detectado',()=>assert.ok(classifyAdoption([row,{...row,id:'FAKE_B',codigo:'other',ruc:' '+row.ruc}]).every(r=>r.issues.includes('DUPLICADOS'))));
+test('FASE11 duplicado de código casefold detectado',()=>assert.ok(classifyAdoption([row,{...row,id:'FAKE_B',ruc:'20900000002',codigo:'CONTROL_A'}]).every(r=>r.issues.includes('DUPLICADOS'))));
+test('FASE11 adopción no modifica input',()=>{const s=JSON.stringify(row);classifyAdoption([row]);assert.equal(JSON.stringify(row),s);});
+const env={NODE_ENV:'production',EDUXFAC_DATA_MODE:'PILOTO',WEB_RLS_ENABLED:'true',WEB_RLS_PROFILE:'global',WEB_PG_TLS:'verify-full',DATABASE_URL:'postgresql://app:FAKE@127.0.0.1/web_f10_pilot11',WEB_AUTH_DATABASE_URL:'postgresql://auth:FAKE@127.0.0.1/web_f10_pilot11',WEB_SERVICE_DATABASE_URL:'postgresql://service:FAKE@127.0.0.1/web_f10_pilot11',CORS_ORIGIN:'https://web.pilot.invalid',SESSION_SECRET:'FAKE_CLIENT_SECRET_ONLY_FOR_UNIT_11',PANEL_WEB_SERVICE_SECRET:'FAKE_SERVICE_SECRET_ONLY_FOR_UNIT_11'};
+test('FASE11 configuración ficticia PILOTO mínima válida',()=>assert.equal(validatePilotEnvironment('web',env).ok,true));
+for(const [name,over]of [['modoDEMO',{EDUXFAC_DATA_MODE:'DEMO'}],['secrets iguales',{SESSION_SECRET:env.PANEL_WEB_SERVICE_SECRET}],['roles iguales',{WEB_AUTH_DATABASE_URL:env.DATABASE_URL}],['DB diferentes',{WEB_AUTH_DATABASE_URL:env.WEB_AUTH_DATABASE_URL+'other'}],['sin RLS',{WEB_RLS_ENABLED:'false'}],['sin TLS',{WEB_PG_TLS:'disable'}],['HTTP',{CORS_ORIGIN:'http://web.pilot.invalid'}],['secret corto',{SESSION_SECRET:'FAKE'}],['worker al inicio',{EXPIRATION_WORKER_ENABLED:'true'}],['placeholder',{DATABASE_URL:'REEMPLAZAR'}]])test('FASE11 configuración rechaza '+name,()=>assert.equal(validatePilotEnvironment('web',{...env,...over}).ok,false));
+test('FASE11 Nginx futuro restringe internos y no registra query ni token',()=>{const s=readFileSync(new URL('../operations/pilot/nginx.conf',import.meta.url),'utf8');assert.match(s,/location \/api\/internal\/ \{ allow 127\.0\.0\.1; allow ::1; deny all;/);assert.ok(!s.includes('$request_uri $'));assert.match(s,/\$uri \$status/);});
+test('FASE11 PM2 no multiplica workers ni serializa secretos',()=>{process.env.EDUXFAC_RELEASE_DIR='/srv/eduxfac/release';const require=createRequire(import.meta.url),cfg=require('../operations/pilot/ecosystem.config.cjs');assert.equal(cfg.apps.length,2);for(const a of cfg.apps){assert.equal(a.instances,1);assert.equal(a.exec_mode,'fork');assert.ok(!Object.keys(a.env).some(k=>k.includes('SECRET')));for(const [k,v]of Object.entries(a.env))if(k.endsWith('WORKER_ENABLED'))assert.equal(v,'false');}});
+
+test('FASE11 DB URL malformada bloqueada',()=>assert.equal(validatePilotEnvironment('web',{...env,DATABASE_URL:'invalid'}).ok,false));
+test('FASE11 DB password ausente bloqueado',()=>assert.equal(validatePilotEnvironment('web',{...env,DATABASE_URL:'postgresql://app@127.0.0.1/web_f10_pilot11'}).ok,false));
+test('FASE11 Panel DB URL malformada bloqueada',()=>assert.ok(validatePilotEnvironment('panel',{...env,PANEL_DB_ENGINE:'postgres',PANEL_PG_TLS:'verify-full',PANEL_DATABASE_URL:'invalid',PANEL_PUBLIC_ORIGIN:'https://panel.pilot.invalid',PANEL_WEB_SERVICE_BASE_URL:'https://web.pilot.invalid'}).errors.includes('PANEL_DATABASE_URL_INVALID')));
+test('FASE11 tipo de configuración desconocido bloqueado',()=>assert.ok(validatePilotEnvironment('other',env).errors.includes('PILOT_KIND_INVALID')));

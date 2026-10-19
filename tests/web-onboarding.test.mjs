@@ -1,0 +1,38 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {DatabaseSync} from 'node:sqlite';
+import {readFileSync} from 'node:fs';
+import {randomUUID} from 'node:crypto';
+import {createPanel} from '../server/app.mjs';
+import {applyLicensingMigrations} from '../server/licensing-service.mjs';
+import {applyWebOnboardingMigrations} from '../server/web-onboarding-service.mjs';
+import {createWebApiClient} from '../server/web-api-client.mjs';
+import {fileURLToPath} from 'node:url';
+const root=fileURLToPath(new URL('../',import.meta.url));
+test('Panel: migración WEB explícita conserva clientes y licencias existentes',()=>{
+ const db=new DatabaseSync(':memory:');try{db.exec(readFileSync(new URL('../database/schema.sql',import.meta.url),'utf8'));applyLicensingMigrations(db,fileURLToPath(new URL('../database/migrations',import.meta.url)));
+ db.prepare('insert into clients(id,name,ruc,status) values(1,?,?,?)').run('Cliente anterior','20999999991','ACTIVO');db.prepare('insert into licenses(id,client_id,reference) values(1,1,?)').run('LICENCIA-HISTORICA-PRUEBA');const before=db.prepare('select * from licenses').all();
+ applyWebOnboardingMigrations(db);applyWebOnboardingMigrations(db);assert.deepEqual(db.prepare('select * from licenses').all(),before);const client=db.prepare('select * from clients').get();assert.equal(client.document_type,'RUC');assert.equal(client.document_number,'20999999991');assert.match(client.public_id,/^[a-f0-9-]{36}$/);assert.equal(db.prepare('select count(*) n from web_schema_migrations').get().n,1);
+ }finally{db.close();}
+});
+test('Panel: rutas autenticadas, borrador sin contraseña y activación separada',async t=>{
+ process.env.NODE_ENV='test';const counts={},remoteIds={cliente_id:randomUUID(),empresa_id:randomUUID(),sucursal_id:randomUUID(),usuario_id:randomUUID()};
+ const method=(name,key)=>async(...args)=>{counts[name]=(counts[name]||0)+1;const body=args.at(-1);return {command_id:body.command_id,...remoteIds,[key]:remoteIds[key],estado:name==='activar'?'ACTIVO':'PENDIENTE'};};
+ const remote={crearCliente:method('crearCliente','cliente_id'),crearEmpresa:method('crearEmpresa','empresa_id'),crearSucursalPrincipal:method('crearSucursalPrincipal','sucursal_id'),crearAdministradorInicial:method('crearAdministradorInicial','usuario_id'),activar:method('activar','empresa_id')};
+ const server=createPanel({database:':memory:',prepareWebTestSchema:true,webApiClient:remote});await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));t.after(()=>new Promise(resolve=>server.close(resolve)));const base='http://127.0.0.1:'+server.address().port;
+ let cookie='';async function request(route,body,{anonymous=false,origin=base}={}){const res=await fetch(base+route,{method:body?'POST':'GET',headers:{...(body?{'Content-Type':'application/json',Origin:origin}:{}),...(!anonymous&&cookie?{Cookie:cookie}:{})},...(body?{body:JSON.stringify(body)}:{})});return {status:res.status,data:await res.json(),cookie:res.headers.get('set-cookie')?.split(';')[0]};}
+ let client,draft;
+ await t.test('API WEB exige sesión; frontend nuevo se sirve sin secretos',async()=>{assert.equal((await request('/api/web/empresas')).status,401);const js=await fetch(base+'/web-onboarding.js');assert.equal(js.status,200);assert.ok((await js.text()).includes('Guardar como pendiente'));});
+ await request('/api/setup',{username:'owner',password:'FAKE_PANEL_TEST_PASSWORD_123'});cookie=(await request('/api/login',{username:'owner',password:'FAKE_PANEL_TEST_PASSWORD_123'})).cookie;
+ await t.test('crear y buscar cliente compartido; evita DNI duplicado',async()=>{const result=await request('/api/web/clientes',{nombre:'Cliente Alta Panel',tipo_documento:'DNI',numero_documento:'12345678',estado:'ACTIVO'});assert.equal(result.status,201);client=result.data;const search=await request('/api/web/clientes?q=12345678');assert.equal(search.data.rows[0].id,client.id);assert.equal((await request('/api/web/clientes',{nombre:'Duplicado',tipo_documento:'DNI',numero_documento:'12345678',estado:'ACTIVO'})).status,409);});
+ const body=()=>({id:randomUUID(),cliente_id:client.id,razon_social:'Empresa Panel',nombre_comercial:'Botica Panel',ruc:'20888888881',empresa_codigo:'PANEL-TEST',sucursal_nombre:'PRINCIPAL',administrador_nombre:'Admin',administrador_usuario:'admin'});
+ await t.test('guardar no permite contraseña ni llamada a WEB',async()=>{assert.equal((await request('/api/web/empresas',{...body(),password_temporal:'NO DEBE GUARDARSE'})).status,400);const result=await request('/api/web/empresas',body());assert.equal(result.status,201);draft=result.data.empresa;assert.equal(draft.estado,'PENDIENTE');assert.equal(Object.keys(counts).length,0);});
+ await t.test('activar alta incompleta es rechazado y CSRF no autorizado también',async()=>{assert.equal((await request('/api/web/empresas/'+draft.id+'/activar',{})).status,409);assert.equal((await request('/api/web/empresas/'+draft.id+'/completar',{password_temporal:'FAKE_TEMPORAL_TEST_123'},{origin:'https://example.invalid'})).status,403);});
+ await t.test('completar confirma pasos sin activar; repetir no llama otra vez',async()=>{const result=await request('/api/web/empresas/'+draft.id+'/completar',{password_temporal:'FAKE_TEMPORAL_TEST_123'});assert.equal(result.status,200);assert.equal(result.data.empresa.estado,'PENDIENTE');assert.ok(result.data.lista_para_activar);assert.equal((await request('/api/web/empresas/'+draft.id+'/completar',{})).status,200);for(const name of ['crearCliente','crearEmpresa','crearSucursalPrincipal','crearAdministradorInicial'])assert.equal(counts[name],1);const list=await request('/api/web/empresas');assert.equal(JSON.stringify(list.data).includes('FAKE_TEMPORAL_TEST_123'),false);});
+ await t.test('activación explícita y reintento son idempotentes',async()=>{assert.equal((await request('/api/web/empresas/'+draft.id+'/activar',{})).data.empresa.estado,'ACTIVO');assert.equal((await request('/api/web/empresas/'+draft.id+'/activar',{})).status,200);assert.equal(counts.activar,1);});
+});
+test('Panel: el arranque normal no aplica la migración nueva a SQLite',async()=>{
+ const server=createPanel({database:':memory:'});await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));const base='http://127.0.0.1:'+server.address().port;
+ try{const call=async(route,body,cookie)=>{const res=await fetch(base+route,{method:body?'POST':'GET',headers:{...(body?{'Content-Type':'application/json',Origin:base}:{}),...(cookie?{Cookie:cookie}:{})},...(body?{body:JSON.stringify(body)}:{})});return {status:res.status,cookie:res.headers.get('set-cookie')?.split(';')[0],data:await res.json()};};await call('/api/setup',{username:'owner',password:'FAKE_PANEL_TEST_PASSWORD_123'});const login=await call('/api/login',{username:'owner',password:'FAKE_PANEL_TEST_PASSWORD_123'});assert.equal((await call('/api/web/empresas',undefined,login.cookie)).status,503);assert.equal((await call('/api/overview',undefined,login.cookie)).status,200);}finally{await new Promise(resolve=>server.close(resolve));}
+});
+test('Panel: cliente de integración rechaza configuración falsa sin conectarse',()=>{let calls=0;assert.throws(()=>createWebApiClient({environment:{PANEL_WEB_SERVICE_BASE_URL:'https://example.invalid',PANEL_WEB_SERVICE_SECRET:'EJEMPLO_FALSO_NO_USAR_SECRET_PANEL_WEB',PANEL_WEB_SERVICE_ISSUER:'fake',PANEL_WEB_SERVICE_AUDIENCE:'fake'},fetchImpl:()=>{calls++;}}));assert.equal(calls,0);});

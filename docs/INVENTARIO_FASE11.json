@@ -1,0 +1,622 @@
+{
+  "closed": "2026-10-13T05:42:41.3426708Z",
+  "roots": {
+    "web": "D:\\EDUXFAC\\EDUXFAC WEB\\01_TRABAJO_ACTUAL\\EDUXFAC_WEB_ACTUAL",
+    "panel": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL"
+  },
+  "counts": {
+    "baseline": 1398,
+    "new_unit": 35,
+    "new_pilot": 26,
+    "new_backup_smoke": 22,
+    "new_distinct": 83,
+    "current_executed_distinct": 1476,
+    "historical_operational_retained": 5,
+    "total_distinct_consolidated": 1481,
+    "pass": 1481,
+    "fail": 0,
+    "baseline_reexecuted_in_phase11": 1393,
+    "tests_repeated_during_this_closure": false,
+    "backup_restore_repeated_during_this_closure": false
+  },
+  "linux": [
+    {
+      "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\staging\\phase11\\artifacts\\REGRESION_PANEL_LINUX.log",
+      "tests": 305,
+      "pass": 305,
+      "fail": 0,
+      "skipped": 0,
+      "sha256": "6ae516ae4de9b593c73208a5573d51ddea8511ab61d04a436a5930b446b3c37d",
+      "bytes": 21336
+    },
+    {
+      "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\staging\\phase11\\artifacts\\REGRESION_WEB_LINUX.log",
+      "tests": 266,
+      "pass": 266,
+      "fail": 0,
+      "skipped": 0,
+      "sha256": "29d4a261855a31596dd4bd47d8fd986471dfabb10890c4dbfe799714dc7a7bfb",
+      "bytes": 22202
+    }
+  ],
+  "groups": [
+    {
+      "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\staging\\phase11\\artifacts\\regression\\FASE9_RESULTADOS.json",
+      "cases": 45,
+      "pass": 45,
+      "fail": 0,
+      "sha256": "034d125d625aeb5a7b1cc44e2ffd63d6feb84f0e6482875fc645de5fd2aa9de4",
+      "bytes": 5125,
+      "execution": "FASE11_antes_del_cierre"
+    },
+    {
+      "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\staging\\phase11\\artifacts\\regression\\FASE9_CARGA.json",
+      "cases": 9,
+      "pass": 9,
+      "fail": 0,
+      "sha256": "793f9f08dd2a8137237e47323778143ccdf7155d1f95ce52c40e81b136664536",
+      "bytes": 3526,
+      "execution": "FASE11_antes_del_cierre"
+    },
+    {
+      "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\staging\\phase11\\artifacts\\regression\\BACKUP_RESTORE_LINUX.json",
+      "cases": 8,
+      "pass": 8,
+      "fail": 0,
+      "sha256": "6993145bad27d35ea8ab1acad8cfdbe5631df6f205571df30d2875aa6246583d",
+      "bytes": 1810,
+      "execution": "FASE11_antes_del_cierre"
+    },
+    {
+      "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\staging\\phase11\\artifacts\\regression\\FASE9_COMPLEMENTARIAS.json",
+      "cases": 8,
+      "pass": 8,
+      "fail": 0,
+      "sha256": "9523a69fabfa1bb1e9a9f4dbc61fd375ea81874ee3e178822f56a25c9cc2686d",
+      "bytes": 2595,
+      "execution": "FASE11_antes_del_cierre"
+    },
+    {
+      "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\staging\\phase11\\artifacts\\regression\\SMOKE_LINUX.json",
+      "cases": 10,
+      "pass": 10,
+      "fail": 0,
+      "sha256": "75eb962fd9a045fbf9de62e9c0df68b110af6b0bc6157c30a461e5c4522f1a10",
+      "bytes": 728,
+      "execution": "FASE11_antes_del_cierre"
+    },
+    {
+      "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\staging\\phase11\\artifacts\\pilot-linux\\MATRIZ_RLS_RESULTADOS_F10.json",
+      "cases": 368,
+      "pass": 368,
+      "fail": 0,
+      "sha256": "c61aa51c6d7c8035b6ddfc152fd8efe0babe9e09a61b2d80f7f5c575b4e37213",
+      "bytes": 40976,
+      "execution": "FASE11_antes_del_cierre"
+    },
+    {
+      "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\staging\\phase11\\artifacts\\pilot-linux\\HTTP_GLOBAL_F10.json",
+      "cases": 300,
+      "pass": 300,
+      "fail": 0,
+      "sha256": "0e2ba3aa7d6da661779311bf3c503053a39858af419bdf862708104f123ae6b5",
+      "bytes": 59154,
+      "execution": "FASE11_antes_del_cierre"
+    },
+    {
+      "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\staging\\phase11\\artifacts\\pilot-linux\\INTEGRIDAD_Y_BYPASS_F10.json",
+      "cases": 83,
+      "pass": 83,
+      "fail": 0,
+      "sha256": "b96fa27fe21be593158ae006b2b1a864cb80fcc91c92ad42b6cbe71acb32306b",
+      "bytes": 8325,
+      "execution": "FASE11_antes_del_cierre"
+    },
+    {
+      "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\staging\\phase11\\artifacts\\pilot-linux\\SMOKE_PILOTO_F10.json",
+      "cases": 13,
+      "pass": 13,
+      "fail": 0,
+      "sha256": "2314d45ad3ed3a1429967a07dc6bc81152014d0c440c6ca09195ce857d4aef81",
+      "bytes": 1339,
+      "execution": "FASE11_antes_del_cierre"
+    },
+    {
+      "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\staging\\phase11\\artifacts\\pilot-linux\\BACKUP_RESTORE_GLOBAL_F10.json",
+      "cases": 8,
+      "pass": 8,
+      "fail": 0,
+      "sha256": "aa9be09ec9402db4ed10747a042eb5b00bb92d5e4c7b10a54a5bbe75f8999fb3",
+      "bytes": 1426,
+      "execution": "FASE11_antes_del_cierre"
+    },
+    {
+      "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\staging\\phase11\\artifacts\\pilot-linux\\STARTUP_ROLES_F10.json",
+      "cases": 5,
+      "pass": 5,
+      "fail": 0,
+      "sha256": "c20bdd492743dff69707d1f1c9652c57fa57018bcb495a2ea14419119ff2918a",
+      "bytes": 491,
+      "execution": "FASE11_antes_del_cierre"
+    },
+    {
+      "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\staging\\phase11\\artifacts\\pilot-linux\\FASE11_VALIDACION_PILOTO.json",
+      "cases": 26,
+      "pass": 26,
+      "fail": 0,
+      "sha256": "48b343dc8dbdfb3aac7b291c84a4d20fa64679930a2667ef6f17e854d094765e",
+      "bytes": 3076,
+      "execution": "FASE11_antes_del_cierre"
+    },
+    {
+      "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\staging\\phase11\\artifacts\\pilot-linux\\FASE11_BACKUP_RESTORE_SMOKE.json",
+      "cases": 22,
+      "pass": 22,
+      "fail": 0,
+      "sha256": "2bb15026098ce3c3763f62391f4f9de8853b61e30170a7000d316d8bb78a540b",
+      "bytes": 2853,
+      "execution": "FASE11_antes_del_cierre"
+    }
+  ],
+  "historical_operational": {
+    "closure": 1,
+    "fresh_final_image_claimed": false,
+    "image": 3,
+    "reboot": 1,
+    "source": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\staging\\phase10\\artifacts\\CIERRE_FASE10.json",
+    "sha256": "e97f5a6d7fd29e28117e95f2bdd6304167fe5b139c625ab8167f4ac75816624b"
+  },
+  "backups": [
+    {
+      "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\03_RESPALDOS\\FASE11_PRE_PILOTO_202610130314",
+      "entries": [
+        {
+          "path": "server/app.mjs",
+          "sha256": "1f897472faacd872000b965b77e10dd82747019e3cc8f58d3145b1efc12d9a31",
+          "verified": true
+        },
+        {
+          "path": "public/app.js",
+          "sha256": "70df8b4c62106f8c02d20b1ea240bfffe904421c5adfd0a0f34ef08d0d0f0b4d",
+          "verified": true
+        },
+        {
+          "path": "public/index.html",
+          "sha256": "f0fa47f9cabcc00edebef144756c7796b5cb4883a78b3c644613b71b8a84e28f",
+          "verified": true
+        },
+        {
+          "path": "public/style.css",
+          "sha256": "b97473561a4e610ba3ab4e96ffac13485e24727e6b69104b6a18d9e53fdea4fe",
+          "verified": true
+        },
+        {
+          "path": "docs/PRE_VPS_CHECKLIST.md",
+          "sha256": "01b530b17ab92a410e4ece24881e60288c3722b20823fd248de289ff2cbeacb6",
+          "verified": true
+        },
+        {
+          "path": "docs/CHECKLIST_ADOPCION_PRODUCCION.md",
+          "sha256": "39acc564c1d89aeec9feb7fc61ec4957865729df54e7d354dec29890693078a9",
+          "verified": true
+        }
+      ],
+      "recreated": false
+    },
+    {
+      "path": "D:\\EDUXFAC\\EDUXFAC WEB\\03_RESPALDOS\\FASE11_PRE_PILOTO_202610130314",
+      "entries": [
+        {
+          "path": "server/scripts/global-rls.js",
+          "sha256": "427c4b19a11a6bc0fe61b7e06d1247063425106b2c18fdc639c94b41cc5b9c2c",
+          "verified": true
+        }
+      ],
+      "recreated": false
+    }
+  ],
+  "protected": [
+    {
+      "path": "data/panel.sqlite",
+      "sha256_unchanged": true,
+      "size_unchanged": true,
+      "mtime_unchanged": true
+    },
+    {
+      "path": "data/license-private-test.pem",
+      "sha256_unchanged": true,
+      "size_unchanged": true,
+      "mtime_unchanged": true
+    },
+    {
+      "path": "database\\migrations\\001_licensing.sql",
+      "sha256_unchanged": true,
+      "size_unchanged": true,
+      "mtime_unchanged": true
+    },
+    {
+      "path": "database\\schema.sql",
+      "sha256_unchanged": true,
+      "size_unchanged": true,
+      "mtime_unchanged": true
+    },
+    {
+      "path": "database\\web-migrations\\001_web_onboarding.sql",
+      "sha256_unchanged": true,
+      "size_unchanged": true,
+      "mtime_unchanged": true
+    },
+    {
+      "path": "database\\web-migrations\\002_web_company_states.sql",
+      "sha256_unchanged": true,
+      "size_unchanged": true,
+      "mtime_unchanged": true
+    },
+    {
+      "path": "database\\web-migrations\\003_web_plans.sql",
+      "sha256_unchanged": true,
+      "size_unchanged": true,
+      "mtime_unchanged": true
+    },
+    {
+      "path": "database\\web-migrations\\004_web_subscriptions.sql",
+      "sha256_unchanged": true,
+      "size_unchanged": true,
+      "mtime_unchanged": true
+    },
+    {
+      "path": "database\\web-migrations\\005_web_operations.sql",
+      "sha256_unchanged": true,
+      "size_unchanged": true,
+      "mtime_unchanged": true
+    },
+    {
+      "path": "database\\web-migrations\\006_panel_dashboard.sql",
+      "sha256_unchanged": true,
+      "size_unchanged": true,
+      "mtime_unchanged": true
+    }
+  ],
+  "prior_test_files": [
+    {
+      "path": "panel/tests/admin-dashboard.test.mjs",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "panel/tests/auth.test.mjs",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "panel/tests/helpers/native-panel-fixture.mjs",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "panel/tests/helpers/sqlite-panel-snapshot.mjs",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "panel/tests/integration-operations.test.mjs",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "panel/tests/licensing.test.mjs",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "panel/tests/phase8-operations.test.mjs",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "panel/tests/postgres-panel-native.test.mjs",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "panel/tests/roles-security.test.mjs",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "panel/tests/web-company-states.test.mjs",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "panel/tests/web-onboarding.test.mjs",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "panel/tests/web-plans.test.mjs",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "panel/tests/web-subscriptions.test.mjs",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "web/tests/admin-service-api.test.js",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "web/tests/company-states.test.js",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "web/tests/helpers/isolated-web.js",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "web/tests/helpers/native-plan-fixture.js",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "web/tests/helpers/operations-fixture.js",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "web/tests/helpers/plan-fixture.js",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "web/tests/helpers/state-fixture.js",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "web/tests/helpers/subscription-fixture.js",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "web/tests/helpers/ui-fixture.mjs",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "web/tests/helpers/ui-operations-fixture.mjs",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "web/tests/helpers/ui-plans-fixture.mjs",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "web/tests/helpers/ui-states-fixture.mjs",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "web/tests/helpers/ui-subscriptions-fixture.mjs",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "web/tests/native-plan-concurrency.test.js",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "web/tests/onboarding.test.js",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "web/tests/operations-native.test.js",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "web/tests/operations.test.js",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "web/tests/phase10-configuration.test.js",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "web/tests/phase9-security.test.js",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "web/tests/plans-limits.test.js",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "web/tests/subscriptions-native.test.js",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "web/tests/subscriptions.test.js",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "web/tests/tenant-isolation.test.js",
+      "sha256_unchanged": true
+    }
+  ],
+  "current_source_hashes": [
+    {
+      "project": "panel",
+      "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\server\\app.mjs",
+      "bytes": 17241,
+      "sha256": "863bcdacffd3c5b835899d6b8a1bb6481fb3e918fa35b0fa8a883c97be2436ed"
+    },
+    {
+      "project": "panel",
+      "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\server\\environment-mode.mjs",
+      "bytes": 396,
+      "sha256": "6509292716be9857451abc6359ee0033fb81c0bfda557617e4634b5e717f86a3"
+    },
+    {
+      "project": "panel",
+      "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\server\\pilot-preflight.mjs",
+      "bytes": 9149,
+      "sha256": "943dcc5ca1b293476eb66203d0c65a1c9cd86279234780bd5058049c008dc8e2"
+    },
+    {
+      "project": "panel",
+      "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\public\\app.js",
+      "bytes": 22050,
+      "sha256": "b9477dfdf9e8bd89760ce603953b660cc9e20937a75624667ced7e9cc30d68da"
+    },
+    {
+      "project": "panel",
+      "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\public\\index.html",
+      "bytes": 3821,
+      "sha256": "7998b67868316348b51d9811dbccd114fd61f584b05944c4a073d108603614df"
+    },
+    {
+      "project": "panel",
+      "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\public\\style.css",
+      "bytes": 23888,
+      "sha256": "dba442082dab1e8dc35ecb60dd92fd69240ae99eb9972fe8d108b9b9fac264c1"
+    },
+    {
+      "project": "panel",
+      "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\tests\\phase11-pilot.test.mjs",
+      "bytes": 5950,
+      "sha256": "25e897987337bc5276082affbfe81863578533a4996ac54f714c6e92b085e8a8"
+    },
+    {
+      "project": "panel",
+      "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\.env.example.pilot",
+      "bytes": 755,
+      "sha256": "2e3df113be427e159d5db0b0f525869243e808ccf881e942029ff9618e1cd931"
+    },
+    {
+      "project": "panel",
+      "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\operations\\pilot\\ecosystem.config.cjs",
+      "bytes": 1306,
+      "sha256": "4a32e5ba60894edb9049c324b11d076ac5b2af68554e466a72e37a5b167fda24"
+    },
+    {
+      "project": "panel",
+      "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\operations\\pilot\\nginx.conf",
+      "bytes": 1886,
+      "sha256": "4cce3dda4bf82e1c6fca4619c66eec62593c08a42e59769db84aeb612ff1b849"
+    },
+    {
+      "project": "panel",
+      "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\operations\\pilot\\roles.future.sql",
+      "bytes": 1432,
+      "sha256": "9694e912dff655e6075ea3113f714dca650f1b2f0ecd35c2bd428345b9a54f63"
+    },
+    {
+      "project": "panel",
+      "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\operations\\pilot\\firewall.future.txt",
+      "bytes": 544,
+      "sha256": "9f1a6c7700c7a850e0e9dc5bcda02c68f5aeb3e522c2aab8aeae328d9ba762d3"
+    },
+    {
+      "project": "panel",
+      "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\operations\\pilot\\logrotate.future.conf",
+      "bytes": 240,
+      "sha256": "bebc03d448572585860f0cede96df8f1ebfb17310f1e68c4b9b8ce23d7d55132"
+    },
+    {
+      "project": "panel",
+      "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\staging\\phase11\\pilot-validation.mjs",
+      "bytes": 18813,
+      "sha256": "9483cd12c50e44116634200e0a02cbcfeaaf481ad9cfe062c25ddc7bd30db247"
+    },
+    {
+      "project": "panel",
+      "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\staging\\phase11\\backup-restore-smoke.mjs",
+      "bytes": 18813,
+      "sha256": "3fff1f2eb94b9723c1d436e5c0d0a6ff7941c7d52ed86c8372d053b09981032c"
+    },
+    {
+      "project": "web",
+      "path": "D:\\EDUXFAC\\EDUXFAC WEB\\01_TRABAJO_ACTUAL\\EDUXFAC_WEB_ACTUAL\\server\\scripts\\global-rls.js",
+      "bytes": 14155,
+      "sha256": "1def39ffca0ac81df8a5db3e3e0098c3519118ca8006735f958617fb5b490a9b"
+    },
+    {
+      "project": "web",
+      "path": "D:\\EDUXFAC\\EDUXFAC WEB\\01_TRABAJO_ACTUAL\\EDUXFAC_WEB_ACTUAL\\server\\start.mjs",
+      "bytes": 913,
+      "sha256": "4dafff578fc2ff6d328485b6ccca82505362a0416d34d19de751210f16d4e1e3"
+    },
+    {
+      "project": "web",
+      "path": "D:\\EDUXFAC\\EDUXFAC WEB\\01_TRABAJO_ACTUAL\\EDUXFAC_WEB_ACTUAL\\.env.example.pilot",
+      "bytes": 915,
+      "sha256": "adda735bdb0f15afe318340bcf051422e45c0e0973fa887082fefd4efdb9a6c3"
+    }
+  ],
+  "additional_evidence": [
+    {
+      "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\staging\\phase11\\artifacts\\pilot-linux\\MIGRACION_DRY_RUN_PANEL_F11.json",
+      "sha256": "5f8b508decc9a4b616567fc71ecbdc8e4c60316db938b0c657622ded554db9cc",
+      "bytes": 9868
+    },
+    {
+      "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\staging\\phase11\\artifacts\\pilot-linux\\MIGRACION_DRY_RUN_WEB_F11.json",
+      "sha256": "ae98249b2ade199275c7fe2486049c3d77d9b02152813b052227d255f0d52b2d",
+      "bytes": 12819
+    },
+    {
+      "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\staging\\phase11\\artifacts\\pilot-linux\\ADOPCION_DRY_RUN_F11.json",
+      "sha256": "55044c36db38893b7dec84efa1d53c418e05e696a98a2b5f44d85c3bf8882c92",
+      "bytes": 1008
+    },
+    {
+      "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\staging\\phase11\\artifacts\\CONTENEDORES_CIERRE_F11.json",
+      "sha256": "0af6f8c8eb2a596ddce8824794482783e7819a775f31674fadc1a7a350773eea",
+      "bytes": 496
+    },
+    {
+      "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\staging\\phase11\\artifacts\\PILOT_LINUX_VALIDACION.log",
+      "sha256": "202380653cc3fb1bcbb96798e52bd32b0f041c8a0b8b54edfa72ee8876eefd3f",
+      "bytes": 1502
+    },
+    {
+      "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\staging\\phase11\\artifacts\\PILOT_BACKUP_RESTORE_SMOKE.log",
+      "sha256": "041eb0be825bc3afce32d01567fee2a7aed5e62bbdf60a09afe1790cc97c8e6b",
+      "bytes": 1209
+    }
+  ],
+  "pilot_ui": {
+    "pass": true,
+    "source": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\staging\\phase11\\artifacts\\pilot-linux\\FASE11_BACKUP_RESTORE_SMOKE.json",
+    "browser_screenshot": false,
+    "method": "actual frontend function + HTML/CSS + actual HTTPS environment"
+  },
+  "containers": [
+    {
+      "name": "/eduxfac-fase11-precheck",
+      "running": false,
+      "network": "none",
+      "restart": "no",
+      "ports": {},
+      "oom_killed": false
+    },
+    {
+      "name": "/eduxfac-fase11-regression",
+      "running": false,
+      "network": "none",
+      "restart": "no",
+      "ports": {},
+      "oom_killed": false
+    },
+    {
+      "name": "/eduxfac-fase11-pilot",
+      "running": false,
+      "network": "none",
+      "restart": "no",
+      "ports": {},
+      "oom_killed": false
+    }
+  ],
+  "go_connect_prepare": true,
+  "go_deploy": false,
+  "go_real_client": false,
+  "external_backup": {
+    "simulation_only": true,
+    "real_upload": false
+  },
+  "restrictions": {
+    "no_backups_recreated": true,
+    "no_production": true,
+    "no_ZIP": true,
+    "no_PROPIO_TECNICO": true,
+    "no_real_migrations": true,
+    "no_code_changes_during_closure": true,
+    "no_VPS": true,
+    "no_real_clients": true,
+    "no_real_secrets": true
+  },
+  "free_space_bytes": {
+    "D": 185409073152,
+    "C": 15587299328
+  }
+}

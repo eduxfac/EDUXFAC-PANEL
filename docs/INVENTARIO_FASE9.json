@@ -1,0 +1,339 @@
+{
+  "created": "2026-10-12T20:42:14.653Z",
+  "roots": {
+    "panel": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL",
+    "web": "D:\\EDUXFAC\\EDUXFAC WEB\\01_TRABAJO_ACTUAL\\EDUXFAC_WEB_ACTUAL"
+  },
+  "preserved": [
+    {
+      "path": "data/panel.sqlite",
+      "sha256_unchanged": true,
+      "size_unchanged": true,
+      "mtime_unchanged": true
+    },
+    {
+      "path": "data/license-private-test.pem",
+      "sha256_unchanged": true,
+      "size_unchanged": true,
+      "mtime_unchanged": true
+    },
+    {
+      "path": "database\\migrations\\001_licensing.sql",
+      "sha256_unchanged": true,
+      "size_unchanged": true,
+      "mtime_unchanged": true
+    },
+    {
+      "path": "database\\schema.sql",
+      "sha256_unchanged": true,
+      "size_unchanged": true,
+      "mtime_unchanged": true
+    },
+    {
+      "path": "database\\web-migrations\\001_web_onboarding.sql",
+      "sha256_unchanged": true,
+      "size_unchanged": true,
+      "mtime_unchanged": true
+    },
+    {
+      "path": "database\\web-migrations\\002_web_company_states.sql",
+      "sha256_unchanged": true,
+      "size_unchanged": true,
+      "mtime_unchanged": true
+    },
+    {
+      "path": "database\\web-migrations\\003_web_plans.sql",
+      "sha256_unchanged": true,
+      "size_unchanged": true,
+      "mtime_unchanged": true
+    },
+    {
+      "path": "database\\web-migrations\\004_web_subscriptions.sql",
+      "sha256_unchanged": true,
+      "size_unchanged": true,
+      "mtime_unchanged": true
+    },
+    {
+      "path": "database\\web-migrations\\005_web_operations.sql",
+      "sha256_unchanged": true,
+      "size_unchanged": true,
+      "mtime_unchanged": true
+    },
+    {
+      "path": "database\\web-migrations\\006_panel_dashboard.sql",
+      "sha256_unchanged": true,
+      "size_unchanged": true,
+      "mtime_unchanged": true
+    }
+  ],
+  "protectedFiles": [
+    {
+      "path": "tests\\admin-dashboard.test.mjs",
+      "sha256_unchanged": true,
+      "authorized_portability_edit": false
+    },
+    {
+      "path": "tests\\auth.test.mjs",
+      "sha256_unchanged": true,
+      "authorized_portability_edit": false
+    },
+    {
+      "path": "tests\\integration-operations.test.mjs",
+      "sha256_unchanged": false,
+      "authorized_portability_edit": true
+    },
+    {
+      "path": "tests\\licensing.test.mjs",
+      "sha256_unchanged": true,
+      "authorized_portability_edit": false
+    },
+    {
+      "path": "tests\\web-company-states.test.mjs",
+      "sha256_unchanged": true,
+      "authorized_portability_edit": false
+    },
+    {
+      "path": "tests\\web-onboarding.test.mjs",
+      "sha256_unchanged": true,
+      "authorized_portability_edit": false
+    },
+    {
+      "path": "tests\\web-plans.test.mjs",
+      "sha256_unchanged": true,
+      "authorized_portability_edit": false
+    },
+    {
+      "path": "tests\\web-subscriptions.test.mjs",
+      "sha256_unchanged": true,
+      "authorized_portability_edit": false
+    },
+    {
+      "path": "database\\migrations\\001_licensing.sql",
+      "sha256_unchanged": true,
+      "authorized_portability_edit": false
+    },
+    {
+      "path": "database\\schema.sql",
+      "sha256_unchanged": true,
+      "authorized_portability_edit": false
+    },
+    {
+      "path": "database\\web-migrations\\001_web_onboarding.sql",
+      "sha256_unchanged": true,
+      "authorized_portability_edit": false
+    },
+    {
+      "path": "database\\web-migrations\\002_web_company_states.sql",
+      "sha256_unchanged": true,
+      "authorized_portability_edit": false
+    },
+    {
+      "path": "database\\web-migrations\\003_web_plans.sql",
+      "sha256_unchanged": true,
+      "authorized_portability_edit": false
+    },
+    {
+      "path": "database\\web-migrations\\004_web_subscriptions.sql",
+      "sha256_unchanged": true,
+      "authorized_portability_edit": false
+    },
+    {
+      "path": "database\\web-migrations\\005_web_operations.sql",
+      "sha256_unchanged": true,
+      "authorized_portability_edit": false
+    },
+    {
+      "path": "database\\web-migrations\\006_panel_dashboard.sql",
+      "sha256_unchanged": true,
+      "authorized_portability_edit": false
+    }
+  ],
+  "backups": {
+    "panel": {
+      "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\03_RESPALDOS\\FASE9_PRE_STAGING_20261012_1903",
+      "entries": [
+        {
+          "path": "server/db.mjs",
+          "backup_ok": true
+        },
+        {
+          "path": "server/postgres-worker.mjs",
+          "backup_ok": true
+        },
+        {
+          "path": "server/app.mjs",
+          "backup_ok": true
+        },
+        {
+          "path": "server/panel-backup-restore.mjs",
+          "backup_ok": true
+        },
+        {
+          "path": "server/sqlite-postgres-migrator.mjs",
+          "backup_ok": true
+        },
+        {
+          "path": "docs/CHECKLIST_ADOPCION_PRODUCCION.md",
+          "backup_ok": true
+        },
+        {
+          "path": "docs/PLAN_ROLLBACK.md",
+          "backup_ok": true
+        },
+        {
+          "path": "tests/phase8-operations.test.mjs",
+          "backup_ok": true
+        },
+        {
+          "path": "tests/integration-operations.test.mjs",
+          "backup_ok": true
+        }
+      ]
+    },
+    "web": {
+      "path": "D:\\EDUXFAC\\EDUXFAC WEB\\03_RESPALDOS\\FASE9_PRE_STAGING_20261012_1903",
+      "entries": [
+        {
+          "path": "server/src/db.js",
+          "backup_ok": true
+        },
+        {
+          "path": "server/src/service-auth.js",
+          "backup_ok": true
+        },
+        {
+          "path": "server/src/auth.js",
+          "backup_ok": true
+        },
+        {
+          "path": "server/src/app.js",
+          "backup_ok": true
+        },
+        {
+          "path": "tests/helpers/native-plan-fixture.js",
+          "backup_ok": true
+        },
+        {
+          "path": "public/index.html",
+          "backup_ok": true
+        }
+      ]
+    }
+  },
+  "modified": {
+    "panel": [
+      {
+        "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\server\\db.mjs",
+        "modified": true
+      },
+      {
+        "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\server\\postgres-worker.mjs",
+        "modified": true
+      },
+      {
+        "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\server\\app.mjs",
+        "modified": true
+      },
+      {
+        "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\server\\panel-backup-restore.mjs",
+        "modified": true
+      },
+      {
+        "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\server\\sqlite-postgres-migrator.mjs",
+        "modified": true
+      },
+      {
+        "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\docs\\CHECKLIST_ADOPCION_PRODUCCION.md",
+        "modified": true
+      },
+      {
+        "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\docs\\PLAN_ROLLBACK.md",
+        "modified": true
+      },
+      {
+        "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\tests\\phase8-operations.test.mjs",
+        "modified": true
+      },
+      {
+        "path": "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\tests\\integration-operations.test.mjs",
+        "modified": true
+      }
+    ],
+    "web": [
+      {
+        "path": "D:\\EDUXFAC\\EDUXFAC WEB\\01_TRABAJO_ACTUAL\\EDUXFAC_WEB_ACTUAL\\server\\src\\db.js",
+        "modified": true
+      },
+      {
+        "path": "D:\\EDUXFAC\\EDUXFAC WEB\\01_TRABAJO_ACTUAL\\EDUXFAC_WEB_ACTUAL\\server\\src\\service-auth.js",
+        "modified": true
+      },
+      {
+        "path": "D:\\EDUXFAC\\EDUXFAC WEB\\01_TRABAJO_ACTUAL\\EDUXFAC_WEB_ACTUAL\\server\\src\\auth.js",
+        "modified": true
+      },
+      {
+        "path": "D:\\EDUXFAC\\EDUXFAC WEB\\01_TRABAJO_ACTUAL\\EDUXFAC_WEB_ACTUAL\\server\\src\\app.js",
+        "modified": true
+      },
+      {
+        "path": "D:\\EDUXFAC\\EDUXFAC WEB\\01_TRABAJO_ACTUAL\\EDUXFAC_WEB_ACTUAL\\tests\\helpers\\native-plan-fixture.js",
+        "modified": true
+      },
+      {
+        "path": "D:\\EDUXFAC\\EDUXFAC WEB\\01_TRABAJO_ACTUAL\\EDUXFAC_WEB_ACTUAL\\public\\index.html",
+        "modified": true
+      }
+    ]
+  },
+  "new": {
+    "panel": [
+      "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\.env.example.staging",
+      "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\server\\isolated-lab.mjs",
+      "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\server\\start.mjs",
+      "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\server\\request-limits.mjs",
+      "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\staging\\phase9\\backup-restore.mjs",
+      "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\staging\\phase9\\bootstrap.mjs",
+      "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\staging\\phase9\\least-privilege.mjs",
+      "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\staging\\phase9\\lib.mjs",
+      "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\staging\\phase9\\load.mjs",
+      "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\staging\\phase9\\nginx.conf",
+      "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\staging\\phase9\\prepare-context.mjs",
+      "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\staging\\phase9\\reboot-state.mjs",
+      "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\staging\\phase9\\smoke.mjs",
+      "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\staging\\phase9\\supplemental.mjs",
+      "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\staging\\phase9\\validate.mjs",
+      "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\staging\\phase9\\web-entry.mjs",
+      "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\staging\\phase9\\Dockerfile",
+      "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\docs\\FASE9_STAGING_LINUX.md",
+      "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\docs\\STAGING_LINUX_SETUP.md",
+      "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\docs\\PM2_PANEL.md",
+      "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\docs\\NGINX_PANEL.md",
+      "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\docs\\BACKUP_LINUX_PANEL.md",
+      "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\docs\\PRE_VPS_CHECKLIST.md",
+      "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\docs\\DEPLOY_PRODUCCION_FUTURO.md",
+      "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\docs\\RESULTADO_FASE9.md",
+      "D:\\EDUXFAC\\PANEL EDUXFAC\\01_TRABAJO_ACTUAL\\PANEL_EDUXFAC_ACTUAL\\docs\\INVENTARIO_FASE9.json"
+    ],
+    "web": [
+      "D:\\EDUXFAC\\EDUXFAC WEB\\01_TRABAJO_ACTUAL\\EDUXFAC_WEB_ACTUAL\\.env.example.staging",
+      "D:\\EDUXFAC\\EDUXFAC WEB\\01_TRABAJO_ACTUAL\\EDUXFAC_WEB_ACTUAL\\server\\src\\csp-header.js",
+      "D:\\EDUXFAC\\EDUXFAC WEB\\01_TRABAJO_ACTUAL\\EDUXFAC_WEB_ACTUAL\\server\\src\\request-limits.js",
+      "D:\\EDUXFAC\\EDUXFAC WEB\\01_TRABAJO_ACTUAL\\EDUXFAC_WEB_ACTUAL\\server\\scripts\\staging-rls.js",
+      "D:\\EDUXFAC\\EDUXFAC WEB\\01_TRABAJO_ACTUAL\\EDUXFAC_WEB_ACTUAL\\public\\delegated-events.js",
+      "D:\\EDUXFAC\\EDUXFAC WEB\\01_TRABAJO_ACTUAL\\EDUXFAC_WEB_ACTUAL\\tests\\phase9-security.test.js",
+      "D:\\EDUXFAC\\EDUXFAC WEB\\01_TRABAJO_ACTUAL\\EDUXFAC_WEB_ACTUAL\\docs\\FASE9_STAGING_LINUX.md",
+      "D:\\EDUXFAC\\EDUXFAC WEB\\01_TRABAJO_ACTUAL\\EDUXFAC_WEB_ACTUAL\\docs\\RLS_VALIDACION_PRODUCCION.md"
+    ]
+  },
+  "backup_verified": true,
+  "protected_real_data_unchanged": true,
+  "all_prior_tests_preserved": true,
+  "final_image": {
+    "tag": "eduxfac-fase9-local:20261012",
+    "id": "sha256:3dee13945037f9c10de4af7c6488f43decbc555b99c6e56ee213478c8008a2b2",
+    "source_files_verified": 178,
+    "verified": true
+  },
+  "closed": "2026-10-12T21:19:10.796Z"
+}

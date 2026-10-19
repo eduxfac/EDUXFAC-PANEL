@@ -1,0 +1,106 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {DatabaseSync} from 'node:sqlite';
+import {readFileSync} from 'node:fs';
+import {randomUUID} from 'node:crypto';
+import {createAdminReadService,applyAdminDashboardMigrations} from '../server/admin-read-service.mjs';
+import {applyLicensingMigrations} from '../server/licensing-service.mjs';
+import {applyWebOnboardingMigrations} from '../server/web-onboarding-service.mjs';
+import {applyWebStateMigrations} from '../server/web-company-states.mjs';
+import {applyWebPlanMigrations} from '../server/web-plans.mjs';
+import {applyWebSubscriptionMigrations,createWebSubscriptionsService} from '../server/web-subscriptions.mjs';
+import {applyIntegrationMigrations} from '../server/integration-queue.mjs';
+import {createPanel} from '../server/app.mjs';
+const now=Date.parse('2026-10-12T15:00:00Z');
+function fixture(){
+ const db=new DatabaseSync(':memory:');db.exec(readFileSync(new URL('../database/schema.sql',import.meta.url),'utf8'));
+ applyLicensingMigrations(db,new URL('../database/migrations/',import.meta.url).pathname.replace(/^\/([A-Z]:)/,'$1').replaceAll('%20',' '));
+ applyWebOnboardingMigrations(db);applyWebStateMigrations(db);applyWebPlanMigrations(db);applyWebSubscriptionMigrations(db);applyIntegrationMigrations(db);applyAdminDashboardMigrations(db);
+ const insert=(t,r)=>{const k=Object.keys(r);return db.prepare('INSERT INTO '+t+'('+k.join(',')+') VALUES('+k.map(()=>'?').join(',')+')').run(...Object.values(r));};
+ const ids=[],subs=[];
+ for(let i=1;i<=45;i++){
+ const id=randomUUID(),sid=randomUUID(),code=i===2?'PROFESIONAL':i===3?'EMPRESA':'BASICO',plan=db.prepare('SELECT * FROM web_planes WHERE codigo=?').get(code);
+ const state={2:'SUSPENDIDO',4:'PENDIENTE',5:'CANCELADO'}[i]||'ACTIVO',ss={2:'SUSPENDIDA',4:'PENDIENTE',5:'CANCELADA'}[i]||'ACTIVA',expiry=new Date(now+(i===3?-1:i===1?5:20)*86400000).toISOString();
+ insert('clients',{id:i,name:'Cliente '+String(i).padStart(2,'0'),business_name:'Botica prueba '+i,ruc:'2099'+String(i).padStart(7,'0'),public_id:randomUUID(),document_type:'RUC',document_number:'2099'+String(i).padStart(7,'0'),email:'correo'+i+'@example.invalid',phone:'00000'+i,dni:i===4?'12345678':null,status:i===4?'INACTIVO':'ACTIVO'});
+ insert('web_empresas',{id,cliente_id:i,empresa_web_id:randomUUID(),razon_social:'Botica '+String(i).padStart(2,'0'),nombre_comercial:i===4?'Marca Especial':'Comercial '+i,ruc:'2099'+String(i).padStart(7,'0'),empresa_codigo:'EMPRESA-'+i,sucursal_nombre:'PRINCIPAL',administrador_nombre:'Ficticio',administrador_usuario:'admin_'+i,estado:state==='PENDIENTE'?'PENDIENTE':'ACTIVO',sync_status:'CONFIRMADO',commands_json:'{}',estado_local:state,estado_web:state,web_auth_version:'1',created_at:i===1?'2026-10-01T03:00:00Z':'2026-10-02T12:00:00Z'});
+ insert('web_company_conditions',{empresa_id:id,plan_id:plan.id,plan_codigo:code,precio_asignado_centavos:plan.precio_centavos,moneda:'PEN',periodicidad:'MENSUAL',limite_sucursales_asignado:plan.limite_sucursales,limite_usuarios_asignado:plan.limite_usuarios,multisucursal:plan.multisucursal,personalizada:0,version_condiciones:'1'});
+ insert('web_subscriptions',{id:sid,empresa_id:id,plan_id:plan.id,fecha_inicio:'2026-09-12T15:00:00Z',fecha_vencimiento:expiry,estado:ss,precio_asignado_centavos:plan.precio_centavos,moneda:'PEN',periodicidad:'MENSUAL',limite_sucursales_asignado:plan.limite_sucursales,limite_usuarios_asignado:plan.limite_usuarios,multisucursal:plan.multisucursal,version_web:'1',version_condiciones:'1'});
+ if(i!==10)insert('web_commercial_usage',{empresa_id:id,uso_json:JSON.stringify({sucursales_activas:1,usuarios_activos:i===2?4:2})});
+ insert('integration_reconciliation',{empresa_id:id,estado:i===4?'ERROR':i===8?'DESINCRONIZADO':'SINCRONIZADO',diferencias_json:'[]'});
+ if(i%2===0)insert('licenses',{client_id:i,reference:'DEMO-LIC-'+i});
+ insert('web_subscription_history',{empresa_id:id,suscripcion_id:sid,evento:'ALTA',estado_nuevo:ss,administrador:'admin_demo',motivo:'Ficticio',command_id:randomUUID(),resultado:'APLICADO'});
+ ids.push(id);subs.push(sid);
+ }
+ const amounts=[5900,9900,12900,5900],dates=['2026-10-10','2026-09-30','2026-10-01T03:00:00Z','2026-10-01'];
+ for(let i=0;i<4;i++){const pid=randomUUID();insert('web_manual_payments',{id:pid,command_id:randomUUID(),empresa_id:ids[i],suscripcion_id:subs[i],importe_centavos:amounts[i],moneda:'PEN',fecha:dates[i],metodo:['EFECTIVO','TRANSFERENCIA','YAPE','PLIN'][i],referencia:'REF-'+i,observacion:'Ficticio',administrador:'admin_demo'});if(i===0)insert('web_payment_context',{pago_id:pid,plan_codigo:'BASICO',precio_asignado_centavos:5900,periodo_inicio:'2026-10-01',periodo_fin:'2026-10-31'});}
+ insert('history',{event:'PRUEBA',detail:'FAKE_SECRET_NO_MOSTRAR'});
+ const svc=createAdminReadService({db,clock:()=>now,config:{integrationEnabled:false,maxAttempts:5}});
+ return {db,svc,ids,subs,insert,close:()=>db.close()};
+}
+test('FASE 7: dashboard, filtros y consultas paginadas aisladas',async t=>{
+ const f=fixture();t.after(f.close);
+ const list=(kind,q={})=>{const r=f.svc.handle('GET','/api/admin/'+kind,q);assert.equal(r.status,200,JSON.stringify(r.data));return r.data;};
+ await t.test('página por defecto solo devuelve veinte clientes de 45',()=>{const d=list('clientes');assert.equal(d.total,45);assert.equal(d.rows.length,20);assert.equal(d.has_next,true);});
+ await t.test('páginas no repiten identificadores y última página contiene cinco',()=>{const a=list('clientes'),b=list('clientes',{page:'2'}),c=list('clientes',{page:'3'});assert.equal(c.rows.length,5);assert.equal(new Set([...a.rows,...b.rows,...c.rows].map(r=>r.id)).size,45);});
+ await t.test('página fuera del rango devuelve vacío con total conservado',()=>{const d=list('clientes',{page:'4'});assert.equal(d.total,45);assert.deepEqual(d.rows,[]);});
+ for(const size of [20,50,100])await t.test('tamaño permitido '+size,()=>assert.equal(list('clientes',{page_size:String(size)}).rows.length,Math.min(45,size)));
+ for(const size of ['0','-1','500','1000000','20.5'])await t.test('rechaza tamaño no permitido '+size,()=>assert.equal(f.svc.handle('GET','/api/admin/clientes',{page_size:size}).status,400));
+ for(const [search,id] of [['Cliente 04',4],['Botica prueba 4',4],['12345678',4],['correo4@',4],['000004',4],['20990000004',4]])await t.test('busca cliente '+search,()=>assert.ok(list('clientes',{search}).rows.some(r=>r.id===id)));
+ await t.test('comodines SQL son literales',()=>assert.equal(list('clientes',{search:'%'}).total,0));
+ await t.test('filtro inactivo',()=>assert.deepEqual(list('clientes',{estado:'INACTIVO'}).rows.map(r=>r.id),[4]));
+ await t.test('filtro ambos productos',()=>assert.equal(list('clientes',{producto:'AMBOS'}).total,22));
+ await t.test('nombre descendente y orden estable',()=>assert.equal(list('clientes',{sort:'nombre_desc'}).rows[0].id,45));
+ await t.test('sort no permite SQL arbitrario',()=>assert.equal(f.svc.handle('GET','/api/admin/clientes',{sort:'name; DROP TABLE clients'}).status,400));
+ await t.test('filtros JSON acotados',()=>assert.equal(list('clientes',{filters:'{"estado":"INACTIVO","producto":"AMBOS"}'}).total,1));
+ await t.test('rechaza campos desconocidos de filtros',()=>assert.equal(f.svc.handle('GET','/api/admin/clientes',{filters:'{"password":"x"}'}).status,400));
+ for(const [search,id] of [['Marca Especial',f.ids[3]],['EMPRESA-2',f.ids[1]],['20990000004',f.ids[3]],['Cliente 04',f.ids[3]]])await t.test('búsqueda de empresa '+search,()=>assert.ok(list('empresas',{search}).rows.some(r=>r.id===id)));
+ await t.test('filtra plan y suspensión',()=>assert.equal(list('empresas',{plan:'PROFESIONAL',estado:'SUSPENDIDO'}).total,1));
+ await t.test('filtro desincronización',()=>assert.equal(list('empresas',{sincronizacion:'DESINCRONIZADO'}).total,1));
+ await t.test('filtro con error',()=>assert.equal(list('empresas',{error:'si'}).total,1));
+ await t.test('cuotas completas por sucursales o usuarios',()=>assert.ok(list('empresas',{cuotas:'si'}).total>0));
+ await t.test('por vencer en 7 días excluye suspendidas y vencidas',()=>assert.equal(list('suscripciones',{proximas:'7'}).total,1));
+ await t.test('vencida por fecha aunque worker no cambie estado',()=>{const r=list('empresas',{estado:'VENCIDO'}).rows[0];assert.equal(r.id,f.ids[2]);assert.equal(r.estado_registrado,'ACTIVO');});
+ await t.test('suscripción incluye último pago registrado',()=>assert.equal(list('suscripciones',{search:'Botica 01'}).rows[0].ultimo_pago.importe_centavos,5900));
+ await t.test('pagos filtran empresa y método',()=>assert.equal(list('pagos',{empresa:f.ids[1],metodo:'TRANSFERENCIA'}).total,1));
+ await t.test('pagos filtran nombre de empresa sin pedir UUID',()=>assert.equal(list('pagos',{empresa:'Botica 02'}).total,1));
+ await t.test('historial filtra nombre de cliente',()=>assert.ok(list('historial',{cliente:'Cliente 01'}).total>=2));
+ await t.test('pagos conservan período explícito',()=>assert.equal(list('pagos',{empresa:f.ids[0]}).rows[0].periodo_fin,'2026-10-31'));
+ await t.test('pago antiguo no inventa plan histórico ni período',()=>{const r=list('pagos',{empresa:f.ids[1]}).rows[0];assert.equal(r.plan_registrado,null);assert.equal(r.periodo_inicio,null);assert.equal(r.plan_actual,'PROFESIONAL');});
+ await t.test('filtra rango de pagos por día comercial Lima',()=>assert.equal(list('pagos',{desde:'2026-10-01',hasta:'2026-10-31'}).total,2));
+ await t.test('fecha imposible rechazada',()=>assert.equal(f.svc.handle('GET','/api/admin/pagos',{desde:'2026-02-30'}).status,400));
+ await t.test('rango invertido rechazado',()=>assert.equal(f.svc.handle('GET','/api/admin/pagos',{desde:'2026-10-02',hasta:'2026-10-01'}).status,400));
+ await t.test('historial se pagina en servidor',()=>assert.equal(list('historial').rows.length,20));
+ await t.test('historial filtra producto empresa acción actor resultado',()=>assert.equal(list('historial',{producto:'WEB',empresa:f.ids[0],accion:'ALTA',administrador:'admin_demo',resultado:'APLICADO'}).total,1));
+ await t.test('historial general no expone detalle libre potencialmente sensible',()=>assert.ok(!JSON.stringify(list('historial',{producto:'PANEL'})).includes('FAKE_SECRET')));
+ await t.test('recuperación vacía no inventa solicitudes',()=>assert.equal(list('recuperacion').total,0));
+ await t.test('dashboard cuenta clientes y estados efectivos',()=>{const d=f.svc.dashboard();assert.equal(d.clientes_totales,45);assert.equal(d.metrics.empresas.ACTIVO,41);assert.equal(d.metrics.empresas.VENCIDO,1);assert.equal(d.metrics.empresas.SUSPENDIDO,1);});
+ await t.test('dashboard ingresos de mes separados de previsión',()=>{const d=f.svc.dashboard();assert.equal(d.metrics.ingresos_mes_centavos,11800);assert.equal(d.metrics.ingresos_anterior_centavos,22800);assert.equal(d.por_plan.find(p=>p.codigo==='BASICO').esperado_centavos,41*5900);});
+ await t.test('dashboard altas respeta frontera de mes America/Lima',()=>assert.equal(f.svc.dashboard().metrics.altas_mes,44));
+ await t.test('dashboard devuelve seis meses sin duplicar',()=>assert.equal(new Set(f.svc.dashboard().series.map(s=>s.mes)).size,6));
+ await t.test('uso faltante no se inventa y cobertura visible',()=>assert.equal(f.svc.dashboard().metrics.empresas_con_uso,44));
+ await t.test('suscripción activa no implica pago registrado',()=>{const d=f.svc.dashboard();assert.ok(d.metrics.suscripciones_activas>list('pagos').total);});
+ await t.test('configuración solo muestra valores públicos',()=>{const r=f.svc.handle('GET','/api/admin/configuracion');assert.equal(r.status,200);assert.ok(!JSON.stringify(r.data).includes('password'));});
+ await t.test('nuevas consultas nunca permiten escritura',()=>assert.equal(f.svc.handle('POST','/api/admin/pagos').status,405));
+ await t.test('error interno devuelve mensaje genérico sin SQL',()=>{const bad=createAdminReadService({db:{prepare(){throw Error('PRIVATE_CONNECTION_SECRET')}}});const r=bad.handle('GET','/api/admin/dashboard');assert.equal(r.status,500);assert.ok(!JSON.stringify(r).includes('PRIVATE'));});
+ await t.test('migración adicional idempotente conserva registros previos',()=>{applyAdminDashboardMigrations(f.db);assert.equal(list('pagos').total,4);});
+ await t.test('contexto de pago inmutable',()=>assert.throws(()=>f.db.exec("UPDATE web_payment_context SET plan_codigo='EMPRESA'")));
+ const service=createWebSubscriptionsService({db:f.db,transaction:fn=>{f.db.exec('BEGIN');try{const r=fn();f.db.exec('COMMIT');return r;}catch(e){f.db.exec('ROLLBACK');throw e;}},webApiClient:{}});
+ const payment={command_id:randomUUID(),importe:'59.00',moneda:'PEN',fecha:'2026-10-12',metodo:'OTRO',referencia:'FAKE',observacion:'Ficticio',periodo_inicio:'2026-10-01',periodo_fin:'2026-10-31'};
+ await t.test('nuevo pago guarda snapshot y período sin renovar',async()=>{const before=f.db.prepare('SELECT * FROM web_subscriptions WHERE empresa_id=?').get(f.ids[0]);const r=await service.handle('POST','/api/web/suscripciones/'+f.ids[0]+'/pago',payment,{},'admin_demo');assert.equal(r.status,201,JSON.stringify(r.data));assert.equal(list('pagos',{empresa:f.ids[0]}).rows[0].periodo_fin,'2026-10-31');assert.deepEqual(f.db.prepare('SELECT * FROM web_subscriptions WHERE empresa_id=?').get(f.ids[0]),before);});
+ await t.test('replay del pago no duplica',async()=>assert.equal((await service.handle('POST','/api/web/suscripciones/'+f.ids[0]+'/pago',payment,{},'admin_demo')).data.replayed,true));
+ await t.test('replay con período distinto rechazado',async()=>assert.equal((await service.handle('POST','/api/web/suscripciones/'+f.ids[0]+'/pago',{...payment,periodo_fin:'2026-11-30'},{},'admin_demo')).status,409));
+ await t.test('período incompleto rechazado',async()=>assert.equal((await service.handle('POST','/api/web/suscripciones/'+f.ids[0]+'/pago',{...payment,command_id:randomUUID(),periodo_fin:''},{},'admin_demo')).status,400));
+});
+test('FASE 7: permisos HTTP y recursos frontend sin base real',async t=>{
+ process.env.NODE_ENV='test';const server=createPanel({database:':memory:',prepareWebOperationTestSchema:true,workerEnvironment:{},webApiClient:{}});await new Promise(r=>server.listen(0,'127.0.0.1',r));t.after(()=>new Promise(r=>server.close(r)));const base='http://127.0.0.1:'+server.address().port;
+ const request=async(route,body,cookie='')=>{const r=await fetch(base+route,{method:body?'POST':'GET',headers:{...(body?{Origin:base,'Content-Type':'application/json'}:{}),...(cookie?{Cookie:cookie}:{})},...(body?{body:JSON.stringify(body)}:{})});return {status:r.status,data:await r.json(),cookie:r.headers.get('set-cookie')};};
+ for(const route of ['dashboard','clientes','empresas','suscripciones','pagos','historial','recuperacion','configuracion'])await t.test('consulta '+route+' exige sesión',async()=>assert.equal((await request('/api/admin/'+route)).status,401));
+ await request('/api/setup',{username:'demo_test',password:'FAKE_DEMO_PASSWORD_FASE7'});const cookie=(await request('/api/login',{username:'demo_test',password:'FAKE_DEMO_PASSWORD_FASE7'})).cookie.split(';')[0];
+ await t.test('sesión autorizada puede leer dashboard vacío',async()=>{const r=await request('/api/admin/dashboard',null,cookie);assert.equal(r.status,200);assert.equal(r.data.clientes_totales,0);assert.equal(r.data.metrics.ingresos_mes_centavos,0);});
+ await t.test('error de filtro no modifica datos',async()=>assert.equal((await request('/api/admin/clientes?page_size=999',null,cookie)).status,400));
+ await t.test('CSRF externo no permite usar endpoints',async()=>{const r=await fetch(base+'/api/admin/pagos',{method:'POST',headers:{Origin:'https://example.invalid','Content-Type':'application/json',Cookie:cookie},body:'{}'});assert.equal(r.status,403);});
+ await t.test('recurso frontend local disponible con CSP',async()=>{const r=await fetch(base+'/admin-dashboard.js');assert.equal(r.status,200);assert.ok(r.headers.get('Content-Security-Policy').includes("script-src 'self'"));assert.ok((await r.text()).includes('No registrado'));});
+});
+test('FASE 7: esquema WEB ausente mantiene métricas desconocidas sin migrar',()=>{
+ const db=new DatabaseSync(':memory:');try{db.exec(readFileSync(new URL('../database/schema.sql',import.meta.url),'utf8'));applyLicensingMigrations(db,new URL('../database/migrations/',import.meta.url).pathname.replace(/^\/([A-Z]:)/,'$1').replaceAll('%20',' '));const svc=createAdminReadService({db});assert.equal(svc.dashboard().metrics,null);assert.equal(svc.dashboard().web_disponible,false);assert.equal(svc.handle('GET','/api/admin/clientes').status,200);assert.equal(svc.handle('GET','/api/admin/empresas').status,503);assert.equal(db.prepare("SELECT count(*) n FROM sqlite_master WHERE name='web_empresas'").get().n,0);}finally{db.close();}
+});

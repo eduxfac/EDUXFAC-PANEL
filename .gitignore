@@ -1,0 +1,29 @@
+data/*.sqlite*
+*.log
+node_modules/
+
+# EDUXFAC PANEL - datos y archivos sensibles
+data/
+*.db
+*.sqlite
+*.sqlite3
+
+# Variables de entorno
+.env
+.env.*
+!.env.example
+
+# Claves y certificados privados
+*.key
+*.pfx
+*.p12
+
+# Dependencias y temporales
+node_modules/
+*.tmp
+*.cache
+*.log
+
+staging/
+
+demo/

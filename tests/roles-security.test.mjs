@@ -1,0 +1,73 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {DatabaseSync} from 'node:sqlite';
+import {readFileSync} from 'node:fs';
+import {fileURLToPath} from 'node:url';
+import {randomUUID} from 'node:crypto';
+import {applyLicensingMigrations} from '../server/licensing-service.mjs';
+import {applyPanelRolesMigration,createAdminAuth,ROLE_PERMISSIONS,hashPanelPassword} from '../server/admin-auth.mjs';
+import {createPanel} from '../server/app.mjs';
+import {pgConfiguration,openPanelDatabase} from '../server/db.mjs';
+import {postgresSQL} from '../server/postgres-dialect.mjs';
+import {adoptionDryRun} from '../server/adoption-dry-run.mjs';
+import {retentionPlan} from '../server/panel-backup-restore.mjs';
+process.env.NODE_ENV='test';
+test('FASE 8: roles, sesiones y administración aislada',async t=>{
+ const db=new DatabaseSync(':memory:');t.after(()=>db.close());db.exec(readFileSync(new URL('../database/schema.sql',import.meta.url),'utf8'));applyLicensingMigrations(db,fileURLToPath(new URL('../database/migrations/',import.meta.url)));applyPanelRolesMigration(db);
+ const transaction=fn=>{db.exec('BEGIN IMMEDIATE');try{const r=fn();db.exec('COMMIT');return r;}catch(e){db.exec('ROLLBACK');throw e;}};
+ const auth=createAdminAuth({db,transaction,environment:{NODE_ENV:'test'}}),password='FAKE_F8_OWNER_PASSWORD_123';
+ assert.equal(auth.publicLogin('/api/setup',{username:'owner_test',password}).status,201);
+ const login=(user,pw=password)=>auth.publicLogin('/api/login',{username:user,password:pw});
+ const ownerCookie=login('owner_test').cookie.split(';')[0].split('=')[1],owner=auth.authenticate(ownerCookie);
+ await t.test('SUPERADMIN permisos completos',()=>assert.equal(auth.authorize(owner,'POST','/api/admin/usuarios'),true));
+ for(const role of ['ADMIN','SOPORTE','LECTURA']){
+ const id=Number(db.prepare('INSERT INTO panel_admin_users(public_id,username,password_hash,role) VALUES(?,?,?,?)').run(randomUUID(),role.toLowerCase(),hashPanelPassword(password),role).lastInsertRowid);
+ await t.test(role+' puede iniciar sesión y consultar',()=>{const c=login(role.toLowerCase()).cookie.split(';')[0].split('=')[1],p=auth.authenticate(c);assert.equal(p.id,id);assert.equal(auth.authorize(p,'GET','/api/admin/clientes'),true);});
+ }
+ const principal=role=>auth.authenticate(login(role.toLowerCase()).cookie.split(';')[0].split('=')[1]);
+ await t.test('ADMIN puede pagos y planes pero no administrar usuarios',()=>{const p=principal('ADMIN');assert.equal(auth.authorize(p,'POST','/api/web/suscripciones/'+randomUUID()+'/pago'),true);assert.equal(auth.authorize(p,'POST','/api/admin/usuarios'),false);});
+ await t.test('SOPORTE no cambia precios ni reintenta comandos de negocio',()=>{const p=principal('SOPORTE');assert.equal(auth.authorize(p,'POST','/api/web/comercial/planes/estado'),false);assert.equal(auth.authorize(p,'POST','/api/web/operacion/comandos/'+randomUUID()+'/reintentar'),false);assert.equal(auth.authorize(p,'POST','/api/admin/recovery/1/decision'),true);});
+ await t.test('LECTURA sin escrituras ni recuperación',()=>{const p=principal('LECTURA');assert.equal(auth.authorize(p,'POST','/api/clients'),false);assert.equal(auth.authorize(p,'POST','/api/admin/recovery/1/decision'),false);});
+ await t.test('principal manipulado no eleva privilegios',()=>{const p=principal('LECTURA');assert.equal(auth.authorize({...p,role:'SUPERADMIN',permissions:ROLE_PERMISSIONS.SUPERADMIN},'POST','/api/admin/usuarios'),false);});
+ await t.test('último SUPERADMIN no puede desactivarse',()=>assert.equal(auth.handle(owner,'POST','/api/admin/usuarios/'+owner.id+'/editar',{enabled:false,motivo:'Prueba ficticia'}).status,409));
+ await t.test('último SUPERADMIN no puede perder su rol',()=>assert.equal(auth.handle(owner,'POST','/api/admin/usuarios/'+owner.id+'/editar',{role:'LECTURA',motivo:'Prueba ficticia'}).status,409));
+ let target,oldToken;
+ await t.test('crea usuario con cambio obligatorio sin devolver contraseña',()=>{const r=auth.handle(owner,'POST','/api/admin/usuarios',{username:'nuevo_demo',password,role:'ADMIN',motivo:'Prueba ficticia'});assert.equal(r.status,201);assert.ok(!JSON.stringify(r).includes(password));target=r.data.id;oldToken=login('nuevo_demo').cookie.split(';')[0].split('=')[1];assert.equal(auth.authenticate(oldToken).must_change_password,true);assert.equal(auth.authorize(auth.authenticate(oldToken),'POST','/api/clients'),false);});
+ await t.test('cambio de contraseña propio invalida sesiones y libera permisos',()=>{const p=auth.authenticate(oldToken);assert.equal(auth.handle(p,'POST','/api/admin/profile/password',{current_password:password,new_password:password+'NEW'},oldToken).status,200);assert.equal(auth.authenticate(oldToken),null);oldToken=login('nuevo_demo',password+'NEW').cookie.split(';')[0].split('=')[1];assert.equal(auth.authenticate(oldToken).must_change_password,false);});
+ await t.test('cambio de rol invalida acceso previo',()=>{assert.equal(auth.handle(owner,'POST','/api/admin/usuarios/'+target+'/editar',{role:'LECTURA',motivo:'Prueba'}).status,200);assert.equal(auth.authenticate(oldToken),null);});
+ await t.test('desactivación impide nuevo login',()=>{assert.equal(auth.handle(owner,'POST','/api/admin/usuarios/'+target+'/editar',{enabled:false,motivo:'Prueba'}).status,200);assert.equal(login('nuevo_demo',password+'NEW').status,401);});
+ await t.test('activar conserva ID y permite login',()=>{assert.equal(auth.handle(owner,'POST','/api/admin/usuarios/'+target+'/editar',{enabled:true,motivo:'Prueba'}).status,200);assert.equal(login('nuevo_demo',password+'NEW').status,200);});
+ await t.test('reset seguro invalida sesiones y exige cambio',()=>{const prior=login('nuevo_demo',password+'NEW').cookie.split(';')[0].split('=')[1];assert.equal(auth.handle(owner,'POST','/api/admin/usuarios/'+target+'/reset',{password:password+'RESET',motivo:'Prueba'}).status,200);assert.equal(auth.authenticate(prior),null);assert.equal(login('nuevo_demo',password+'NEW').status,401);assert.equal(login('nuevo_demo',password+'RESET').data.identity.must_change_password,true);});
+ await t.test('listado de usuarios no contiene hashes ni contraseñas',()=>{const r=auth.handle(owner,'GET','/api/admin/usuarios');assert.equal(r.status,200);assert.ok(!JSON.stringify(r.data).includes('password_hash'));assert.ok(!JSON.stringify(r.data).includes(password));});
+ await t.test('rol desconocido o campos de permisos rechazados',()=>assert.equal(auth.handle(owner,'POST','/api/admin/usuarios',{username:'impostor',password,role:'ROOT',permissions:['*'],motivo:'Prueba'}).status,400));
+ await t.test('auditoría de acceso y cambios inmutable, sin credenciales',()=>{const r=db.prepare('SELECT * FROM panel_admin_events').all();assert.ok(r.length>5);assert.ok(!JSON.stringify(r).includes(password));assert.throws(()=>db.exec("UPDATE panel_admin_events SET motivo='x'"));});
+ await t.test('logout revoca token',()=>{const token=principalToken();const p=auth.authenticate(token);assert.equal(auth.handle(p,'POST','/api/logout',{},token).status,200);assert.equal(auth.authenticate(token),null);});
+ function principalToken(){return login('lectura').cookie.split(';')[0].split('=')[1];}
+ await t.test('sesión expirada no valida',()=>{const tok=principalToken();db.exec('UPDATE panel_admin_sessions SET expires_at=0');assert.equal(auth.authenticate(tok),null);});
+ await t.test('rate limit protege intentos de login',()=>{for(let i=0;i<10;i++)assert.equal(login('incorrecto_demo','FAKE_WRONG_PASSWORD_123').status,401);assert.equal(login('incorrecto_demo','FAKE_WRONG_PASSWORD_123').status,429);});
+ await t.test('cookie producción incluye HttpOnly SameSite Secure',()=>{const prod=createAdminAuth({db,transaction,environment:{NODE_ENV:'production'}});const r=prod.publicLogin('/api/login',{username:'owner_test',password});assert.ok(r.cookie.includes('Secure'));assert.ok(r.cookie.includes('HttpOnly'));assert.ok(r.cookie.includes('SameSite=Strict'));assert.equal(prod.publicLogin('/api/setup',{username:'x_demo',password}).status,403);});
+});
+test('FASE 8: backend HTTP rechaza permisos aunque se envíen botones o actor falso',async t=>{
+ const s=createPanel({database:':memory:',preparePhase8TestSchema:true,workerEnvironment:{},dbEnvironment:{NODE_ENV:'test'},webApiClient:{}});await new Promise(r=>s.listen(0,'127.0.0.1',r));t.after(()=>new Promise(r=>s.close(r)));
+ const base='http://127.0.0.1:'+s.address().port;
+ const req=async(route,body,cookie='')=>{const r=await fetch(base+route,{method:body?'POST':'GET',headers:{...(body?{Origin:base,'Content-Type':'application/json'}:{}),...(cookie?{Cookie:cookie}:{})},...(body?{body:JSON.stringify(body)}:{})});return {status:r.status,data:await r.json(),cookie:r.headers.get('set-cookie')?.split(';')[0]};};
+ const pwd='FAKE_HTTP_F8_PASSWORD_123';await req('/api/setup',{username:'owner_http',password:pwd});const owner=(await req('/api/login',{username:'owner_http',password:pwd})).cookie;
+ let created=await req('/api/admin/usuarios',{username:'lectura_http',password:pwd,role:'LECTURA',motivo:'Prueba'},owner);assert.equal(created.status,201);let reader=(await req('/api/login',{username:'lectura_http',password:pwd})).cookie;
+ await req('/api/admin/profile/password',{current_password:pwd,new_password:pwd+'N'},reader);reader=(await req('/api/login',{username:'lectura_http',password:pwd+'N'})).cookie;
+ for(const route of ['/api/clients','/api/licenses','/api/settings','/api/admin/usuarios','/api/web/comercial/planes/estado','/api/web/operacion/conciliar'])await t.test('LECTURA rechazada '+route,async()=>assert.equal((await req(route,{role:'SUPERADMIN',administrador:'owner_http'},reader)).status,403));
+ await t.test('identity refleja rol y no secretos',async()=>{const r=await req('/api/admin/identity',null,reader);assert.equal(r.data.role,'LECTURA');assert.ok(!JSON.stringify(r).includes(pwd));});
+ await t.test('health técnico solo después de autenticación',async()=>{assert.equal((await req('/api/admin/health')).status,401);assert.equal((await req('/api/admin/health',null,owner)).status,200);});
+ await t.test('CSRF no permite administración de usuarios',async()=>{const r=await fetch(base+'/api/admin/usuarios',{method:'POST',headers:{Cookie:owner,Origin:'https://invalid.test','Content-Type':'application/json'},body:'{}'});assert.equal(r.status,403);});
+});
+test('FASE 8: configuración, dialecto y adopción nunca conectan producción',async t=>{
+ await t.test('engine desconocido bloqueado',()=>assert.throws(()=>openPanelDatabase({engine:'other'})));
+ await t.test('URL PostgreSQL ausente no abre conexiones',()=>assert.throws(()=>pgConfiguration({})));
+ await t.test('producción exige TLS verificable',()=>assert.throws(()=>pgConfiguration({NODE_ENV:'production',PANEL_DATABASE_URL:'postgresql://fake@localhost/panel'})));
+ await t.test('URL con query inseguro rechazada',()=>assert.throws(()=>pgConfiguration({PANEL_DATABASE_URL:'postgresql://fake@localhost/panel?sslmode=disable'})));
+ await t.test('parámetros posicionales y literales no se confunden',()=>assert.deepEqual(postgresSQL("SELECT '?' literal,? a,'p:x' b",['FAKE']),{text:"SELECT '?' literal,$1 a,'p:x' b",values:['FAKE']}));
+ await t.test('parámetros nombrados seguros',()=>assert.deepEqual(postgresSQL("SELECT :nombre n",{nombre:'FAKE'} instanceof Array?[]:[{nombre:'FAKE'}]).values,['FAKE']));
+ await t.test('JSON numérico dentro de CASE mantiene tipo',()=>assert.ok(postgresSQL("SELECT json_extract(CASE WHEN json_valid(v) THEN v ELSE '{}' END,'$.usuarios_activos')").text.includes(' AS bigint)')));
+ await t.test('adopción dry run no altera entrada',()=>{const input=[{empresa_id:randomUUID(),ruc:'20999999999',codigo:'PILOTO',usuarios:2,sucursales:1,estado:'ACTIVO'}],before=JSON.stringify(input),r=adoptionDryRun(input);assert.equal(r.mode,'DRY_RUN');assert.equal(r.rows[0].plan_a_asignar,'BASICO');assert.equal(r.aplicado,false);assert.equal(JSON.stringify(input),before);});
+ await t.test('adopción bloquea RUC/código duplicados',()=>{const r=adoptionDryRun([1,2].map(i=>({empresa_id:randomUUID(),ruc:'20999999999',codigo:'MISMO',usuarios:1,sucursales:1})));assert.ok(r.rows.every(x=>x.resultado==='BLOQUEADO_REVISION'));});
+ await t.test('más de seis usuarios requiere revisión',()=>assert.equal(adoptionDryRun([{empresa_id:randomUUID(),ruc:'20999999998',codigo:'GRANDE',usuarios:10,sucursales:4}]).rows[0].resultado,'PENDIENTE_DATOS_Y_AUTORIZACION'));
+});

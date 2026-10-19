@@ -1,0 +1,34 @@
+{
+  "mode": "DRY_RUN",
+  "aplicado": false,
+  "rows": [
+    {
+      "empresa_id": "70faa088-519e-47a9-96c9-f0af8b020d9d",
+      "ruc": "20988800001",
+      "codigo": "PILOTO-F8-1",
+      "usuarios": 1,
+      "sucursales": 1,
+      "plan_a_asignar": "BASICO",
+      "suscripcion_a_crear": "EXISTENTE_NO_RECREAR",
+      "fecha_inicio": null,
+      "fecha_vencimiento": null,
+      "estado": "VENCIDO",
+      "resultado": "YA_ORGANIZADA",
+      "advertencia": null
+    },
+    {
+      "empresa_id": "664f654b-a16f-4757-b929-92cb58feccc8",
+      "ruc": "20988800002",
+      "codigo": "PILOTO-F8-2",
+      "usuarios": 1,
+      "sucursales": 2,
+      "plan_a_asignar": "EMPRESA",
+      "suscripcion_a_crear": "EXISTENTE_NO_RECREAR",
+      "fecha_inicio": null,
+      "fecha_vencimiento": null,
+      "estado": "ACTIVO",
+      "resultado": "YA_ORGANIZADA",
+      "advertencia": null
+    }
+  ]
+}

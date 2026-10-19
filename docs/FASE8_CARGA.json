@@ -1,0 +1,65 @@
+{
+  "datos_ficticios": true,
+  "clientes": 2000,
+  "empresas": 2000,
+  "suscripciones": 2000,
+  "pagos": 10000,
+  "eventos_history": 50000,
+  "comandos": 5012,
+  "mediciones": [
+    {
+      "consulta": "dashboard",
+      "muestras": 5,
+      "p50_ms": 443.01200008392334,
+      "p95_ms": 510.8416999578476,
+      "max_ms": 510.8416999578476
+    },
+    {
+      "consulta": "clientes_busqueda",
+      "muestras": 5,
+      "p50_ms": 6.913100004196167,
+      "p95_ms": 7.546499967575073,
+      "max_ms": 7.546499967575073
+    },
+    {
+      "consulta": "empresas_filtro",
+      "muestras": 5,
+      "p50_ms": 30.356500029563904,
+      "p95_ms": 31.007099986076355,
+      "max_ms": 31.007099986076355
+    },
+    {
+      "consulta": "pagos_pagina",
+      "muestras": 5,
+      "p50_ms": 28.74619996547699,
+      "p95_ms": 29.05400002002716,
+      "max_ms": 29.05400002002716
+    },
+    {
+      "consulta": "historial_50000",
+      "muestras": 5,
+      "p50_ms": 63.78509998321533,
+      "p95_ms": 75.78830003738403,
+      "max_ms": 75.78830003738403
+    },
+    {
+      "consulta": "10_lecturas_HTTP_concurrentes",
+      "total_ms": 72.70209991931915,
+      "errores": 0
+    },
+    {
+      "consulta": "conciliacion_piloto_B",
+      "muestras": 3,
+      "p50_ms": 27.857400059700012,
+      "p95_ms": 38.93760001659393,
+      "max_ms": 38.93760001659393
+    },
+    {
+      "consulta": "worker_cola_5000",
+      "muestras": 3,
+      "p50_ms": 17.19659996032715,
+      "p95_ms": 21.023200035095215,
+      "max_ms": 21.023200035095215
+    }
+  ]
+}

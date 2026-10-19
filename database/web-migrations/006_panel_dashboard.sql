@@ -1,0 +1,3 @@
+CREATE TABLE IF NOT EXISTS web_payment_context(pago_id TEXT PRIMARY KEY REFERENCES web_manual_payments(id),plan_codigo TEXT NOT NULL,precio_asignado_centavos INTEGER NOT NULL,periodo_inicio TEXT,periodo_fin TEXT,created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,CHECK((periodo_inicio IS NULL AND periodo_fin IS NULL) OR(periodo_inicio IS NOT NULL AND periodo_fin IS NOT NULL AND periodo_fin>=periodo_inicio)));
+CREATE TRIGGER IF NOT EXISTS web_payment_context_no_update BEFORE UPDATE ON web_payment_context BEGIN SELECT RAISE(ABORT,'Contexto de pago inmutable'); END;
+CREATE TRIGGER IF NOT EXISTS web_payment_context_no_delete BEFORE DELETE ON web_payment_context BEGIN SELECT RAISE(ABORT,'Contexto de pago inmutable'); END;

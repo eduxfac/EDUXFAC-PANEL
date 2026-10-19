@@ -1,0 +1,283 @@
+{
+  "estado": "OK",
+  "dry_run": false,
+  "original_abierto": false,
+  "source_isolated": true,
+  "tablas": [
+    {
+      "tabla": "admin",
+      "antes": 1,
+      "despues": 1,
+      "equivalente": true,
+      "sha256_antes": "d90c38caee9f3b605001cfbd2218036a3cbf3719e9fc7e3577e32b0686b9350f",
+      "sha256_despues": "d90c38caee9f3b605001cfbd2218036a3cbf3719e9fc7e3577e32b0686b9350f"
+    },
+    {
+      "tabla": "sessions",
+      "antes": 1,
+      "despues": 1,
+      "equivalente": true,
+      "sha256_antes": "7275b9493309bb08f25e4bb53eeab0f8f7975e46c4aca7a14bb49d8b7870d32b",
+      "sha256_despues": "7275b9493309bb08f25e4bb53eeab0f8f7975e46c4aca7a14bb49d8b7870d32b"
+    },
+    {
+      "tabla": "login_attempts",
+      "antes": 0,
+      "despues": 0,
+      "equivalente": true,
+      "sha256_antes": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sha256_despues": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "tabla": "clients",
+      "antes": 2,
+      "despues": 2,
+      "equivalente": true,
+      "sha256_antes": "7ce982dad82e0d34536ad79b9258e7538d4aa140627ae5e6b1457a9265ae3b7d",
+      "sha256_despues": "7ce982dad82e0d34536ad79b9258e7538d4aa140627ae5e6b1457a9265ae3b7d"
+    },
+    {
+      "tabla": "licenses",
+      "antes": 2,
+      "despues": 2,
+      "equivalente": true,
+      "sha256_antes": "4a59e150913e42a941076313de1f5ab8d0e0204e735b1d500ea0a98b2c94a761",
+      "sha256_despues": "4a59e150913e42a941076313de1f5ab8d0e0204e735b1d500ea0a98b2c94a761"
+    },
+    {
+      "tabla": "authorized_devices",
+      "antes": 2,
+      "despues": 2,
+      "equivalente": true,
+      "sha256_antes": "e85dd20d353d9fe89317d2996b5bac1f9ef4ee1f686c320bdafe1f996242c292",
+      "sha256_despues": "e85dd20d353d9fe89317d2996b5bac1f9ef4ee1f686c320bdafe1f996242c292"
+    },
+    {
+      "tabla": "activations",
+      "antes": 2,
+      "despues": 2,
+      "equivalente": true,
+      "sha256_antes": "28f5644dd14857f1931735ba61301fa25f95373abd77d293ad8498604dbfabba",
+      "sha256_despues": "28f5644dd14857f1931735ba61301fa25f95373abd77d293ad8498604dbfabba"
+    },
+    {
+      "tabla": "recovery_requests",
+      "antes": 2,
+      "despues": 2,
+      "equivalente": true,
+      "sha256_antes": "28f5644dd14857f1931735ba61301fa25f95373abd77d293ad8498604dbfabba",
+      "sha256_despues": "28f5644dd14857f1931735ba61301fa25f95373abd77d293ad8498604dbfabba"
+    },
+    {
+      "tabla": "history",
+      "antes": 1,
+      "despues": 1,
+      "equivalente": true,
+      "sha256_antes": "f64738b5657589b878e73ba2e1e94f37d48d9f0b7c631f6189c5f38f5bd5fefc",
+      "sha256_despues": "f64738b5657589b878e73ba2e1e94f37d48d9f0b7c631f6189c5f38f5bd5fefc"
+    },
+    {
+      "tabla": "settings",
+      "antes": 1,
+      "despues": 1,
+      "equivalente": true,
+      "sha256_antes": "ac4592ac1f2381b7cb45fd12f0c8714919c467677e0e101a13aed70e3be06121",
+      "sha256_despues": "ac4592ac1f2381b7cb45fd12f0c8714919c467677e0e101a13aed70e3be06121"
+    },
+    {
+      "tabla": "schema_migrations",
+      "antes": 1,
+      "despues": 1,
+      "equivalente": true,
+      "sha256_antes": "8cffeba6de254d6641b150c91d8db760225413f6217e6d72c0663024aa48dac5",
+      "sha256_despues": "8cffeba6de254d6641b150c91d8db760225413f6217e6d72c0663024aa48dac5"
+    },
+    {
+      "tabla": "license_events",
+      "antes": 2,
+      "despues": 2,
+      "equivalente": true,
+      "sha256_antes": "4d6ea2d4d7b1f3c849de9cb2fce4f52be2a0147044642f8e03b481c71d314b74",
+      "sha256_despues": "4d6ea2d4d7b1f3c849de9cb2fce4f52be2a0147044642f8e03b481c71d314b74"
+    },
+    {
+      "tabla": "api_rate_limits",
+      "antes": 0,
+      "despues": 0,
+      "equivalente": true,
+      "sha256_antes": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sha256_despues": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "tabla": "web_schema_migrations",
+      "antes": 5,
+      "despues": 5,
+      "equivalente": true,
+      "sha256_antes": "758627df72d44f510f1bc3520b53c6a51cae27c46fb46d420f473031f1741aa9",
+      "sha256_despues": "758627df72d44f510f1bc3520b53c6a51cae27c46fb46d420f473031f1741aa9"
+    },
+    {
+      "tabla": "web_empresas",
+      "antes": 2,
+      "despues": 2,
+      "equivalente": true,
+      "sha256_antes": "5115b6b52944b9184cdefa5408799cc3e0b3f197eaddab91fde8225b3d61cf68",
+      "sha256_despues": "5115b6b52944b9184cdefa5408799cc3e0b3f197eaddab91fde8225b3d61cf68"
+    },
+    {
+      "tabla": "web_state_commands",
+      "antes": 2,
+      "despues": 2,
+      "equivalente": true,
+      "sha256_antes": "f118055ec8296638f478fda1fcc599cc1b9d82dd81a04bc8ccdd33fce4b7abe0",
+      "sha256_despues": "f118055ec8296638f478fda1fcc599cc1b9d82dd81a04bc8ccdd33fce4b7abe0"
+    },
+    {
+      "tabla": "web_state_history",
+      "antes": 0,
+      "despues": 0,
+      "equivalente": true,
+      "sha256_antes": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sha256_despues": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "tabla": "web_planes",
+      "antes": 3,
+      "despues": 3,
+      "equivalente": true,
+      "sha256_antes": "972248d29c107fe024356fc9de86c8ecdf8c3c3f03baa553ea23eced1d840c0f",
+      "sha256_despues": "972248d29c107fe024356fc9de86c8ecdf8c3c3f03baa553ea23eced1d840c0f"
+    },
+    {
+      "tabla": "web_company_conditions",
+      "antes": 2,
+      "despues": 2,
+      "equivalente": true,
+      "sha256_antes": "7672fa69edd79e88d0e451fa754d983956c7b867c8e47afb0564777e5a893dcc",
+      "sha256_despues": "7672fa69edd79e88d0e451fa754d983956c7b867c8e47afb0564777e5a893dcc"
+    },
+    {
+      "tabla": "web_commercial_commands",
+      "antes": 0,
+      "despues": 0,
+      "equivalente": true,
+      "sha256_antes": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sha256_despues": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "tabla": "web_commercial_history",
+      "antes": 0,
+      "despues": 0,
+      "equivalente": true,
+      "sha256_antes": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sha256_despues": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "tabla": "web_commercial_usage",
+      "antes": 2,
+      "despues": 2,
+      "equivalente": true,
+      "sha256_antes": "e8141fbaf2ca1bda06cce46ff0af47dbcbccb14aa73ce276ce6f05f9a533804b",
+      "sha256_despues": "e8141fbaf2ca1bda06cce46ff0af47dbcbccb14aa73ce276ce6f05f9a533804b"
+    },
+    {
+      "tabla": "web_subscriptions",
+      "antes": 2,
+      "despues": 2,
+      "equivalente": true,
+      "sha256_antes": "7c62f855d6b2ce0aa73a459b321f255876a79ed0dc8e6c50d830c2ddd1f67072",
+      "sha256_despues": "7c62f855d6b2ce0aa73a459b321f255876a79ed0dc8e6c50d830c2ddd1f67072"
+    },
+    {
+      "tabla": "web_subscription_commands",
+      "antes": 0,
+      "despues": 0,
+      "equivalente": true,
+      "sha256_antes": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sha256_despues": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "tabla": "web_subscription_history",
+      "antes": 2,
+      "despues": 2,
+      "equivalente": true,
+      "sha256_antes": "49ec251825e863a9dcfc9f11c52a5613580946290f2f9e89fc8281ee6e1025db",
+      "sha256_despues": "49ec251825e863a9dcfc9f11c52a5613580946290f2f9e89fc8281ee6e1025db"
+    },
+    {
+      "tabla": "web_manual_payments",
+      "antes": 2,
+      "despues": 2,
+      "equivalente": true,
+      "sha256_antes": "44f253630fbc6605008a874ac2514926184150e833f38719d0b623bad7952704",
+      "sha256_despues": "44f253630fbc6605008a874ac2514926184150e833f38719d0b623bad7952704"
+    },
+    {
+      "tabla": "integration_settings",
+      "antes": 1,
+      "despues": 1,
+      "equivalente": true,
+      "sha256_antes": "4356a220a961fe67256aec14331009aa787ab629b9a1ce0111f3e81754cb3572",
+      "sha256_despues": "4356a220a961fe67256aec14331009aa787ab629b9a1ce0111f3e81754cb3572"
+    },
+    {
+      "tabla": "integration_queue",
+      "antes": 2,
+      "despues": 2,
+      "equivalente": true,
+      "sha256_antes": "7d63e41fc9860ec7d4348016002d1c5cd32657034d247e22d0742c27ee1d5fa9",
+      "sha256_despues": "7d63e41fc9860ec7d4348016002d1c5cd32657034d247e22d0742c27ee1d5fa9"
+    },
+    {
+      "tabla": "integration_attempts",
+      "antes": 0,
+      "despues": 0,
+      "equivalente": true,
+      "sha256_antes": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sha256_despues": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "tabla": "integration_logs",
+      "antes": 0,
+      "despues": 0,
+      "equivalente": true,
+      "sha256_antes": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sha256_despues": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "tabla": "integration_reconciliation",
+      "antes": 2,
+      "despues": 2,
+      "equivalente": true,
+      "sha256_antes": "34f87431a01ff07051e5a88749338a28a125f596230c5c999be8f8999f232b0d",
+      "sha256_despues": "34f87431a01ff07051e5a88749338a28a125f596230c5c999be8f8999f232b0d"
+    },
+    {
+      "tabla": "integration_health",
+      "antes": 1,
+      "despues": 1,
+      "equivalente": true,
+      "sha256_antes": "cafe4d949b11135f240a22017a90250e3fe6936fd56c7134735c319a3029d767",
+      "sha256_despues": "cafe4d949b11135f240a22017a90250e3fe6936fd56c7134735c319a3029d767"
+    },
+    {
+      "tabla": "integration_worker_runs",
+      "antes": 0,
+      "despues": 0,
+      "equivalente": true,
+      "sha256_antes": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sha256_despues": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "tabla": "web_payment_context",
+      "antes": 2,
+      "despues": 2,
+      "equivalente": true,
+      "sha256_antes": "39b0e69dd15dd5bba1c4552bc5012c970ca2d3fd05155c04070a9fa54886a1d6",
+      "sha256_despues": "39b0e69dd15dd5bba1c4552bc5012c970ca2d3fd05155c04070a9fa54886a1d6"
+    }
+  ],
+  "equivalencia_total": true,
+  "relaciones": "VERIFICADAS",
+  "sessions_legacy_activas": false
+}
