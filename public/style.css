@@ -50,3 +50,15 @@ aside{display:flex;flex-direction:column}aside nav{overflow-y:auto;min-height:0;
 .integration-dialog input[type=checkbox]{width:auto;margin-right:8px}.integration-dialog form{display:grid;gap:8px}.integration-dialog .primary{justify-self:start}.small-action:disabled{opacity:.55;cursor:not-allowed}
 
 .pilot-environment{padding:12px 20px;background:#fff0bd;color:#6c4800;border-bottom:2px solid #e9ae28;text-align:center;font-weight:800;letter-spacing:.08em}.pilot-environment[hidden]{display:none}
+
+/* Configuración fiscal por sucursal */
+#web-new-company .branch-fiscal{grid-template-columns:repeat(3,minmax(0,1fr));background:#fbfcff}
+.branch-fiscal .fiscal-note{margin:0;padding:12px 14px;border:1px solid #cddfeb;border-radius:9px;background:#eef7fa;color:#38566a;font-size:.8rem;line-height:1.55}
+.branch-fiscal label{min-width:0}.branch-fiscal label>small{display:block;margin-top:6px;color:#76889a;font-size:.72rem;line-height:1.4}
+.branch-fiscal .fiscal-switch{position:relative;display:grid;grid-template-columns:1fr auto;align-content:center;gap:4px 14px;min-height:76px;padding:12px 14px;border:1px solid #d9e1e9;border-radius:9px;background:#fff}
+.branch-fiscal .fiscal-switch>span{font-weight:600}.branch-fiscal .fiscal-switch>small{grid-column:1/2;margin:0}.branch-fiscal .fiscal-switch input{appearance:none;width:42px;height:24px;margin:0;border:0;border-radius:999px;background:#bac6d1;cursor:pointer;position:relative;transition:.2s}
+.branch-fiscal .fiscal-switch input::after{content:"";position:absolute;width:18px;height:18px;top:3px;left:3px;border-radius:50%;background:#fff;box-shadow:0 1px 3px #0003;transition:.2s}
+.branch-fiscal .fiscal-switch input:checked{background:#16a596}.branch-fiscal .fiscal-switch input:checked::after{transform:translateX(18px)}
+.branch-fiscal .fiscal-switch input:focus-visible{outline:3px solid #87d8cf;outline-offset:2px}
+@media(max-width:1050px){#web-new-company .branch-fiscal{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){#web-new-company .branch-fiscal{grid-template-columns:1fr}}

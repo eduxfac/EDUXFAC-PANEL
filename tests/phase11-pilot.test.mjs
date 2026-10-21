@@ -9,8 +9,8 @@ test('FASE11 bandera pública PILOTO no expone env ni credenciales',()=>{const r
 test('FASE11 DEMO no se presenta PILOTO',()=>assert.equal(panelEnvironment({NODE_ENV:'test'}).mode,'DEMO'));
 test('FASE11 producción no declarada se identifica sin ocultarse como DEMO',()=>assert.equal(panelEnvironment({NODE_ENV:'production'}).mode,'NO_DECLARADO'));
 test('FASE11 modo inválido bloqueado',()=>assert.throws(()=>panelEnvironment({EDUXFAC_DATA_MODE:'pilot'})));
-test('FASE11 migraciones Panel exactas 001 a008 con hash',()=>{const m=migrationManifest('panel');assert.equal(m.length,8);assert.equal(m[0].version,'001_base');assert.equal(m.at(-1).version,'008_roles_security');assert.ok(m.every(r=>r.sha256.length===64));});
-test('FASE11 manifest WEB incluye orden real y etapas embebidas',()=>{const m=migrationManifest('web');assert.equal(m.length,15);assert.equal(m[1].version,'ensureReturnsSchema');assert.equal(m.at(-1).version,'006_operacion_workers');});
+test('FASE11 migraciones Panel exactas 001 a009 con hash',()=>{const m=migrationManifest('panel');assert.equal(m.length,9);assert.equal(m[0].version,'001_base');assert.equal(m.at(-1).version,'009_branch_fiscal_configuration');assert.ok(m.every(r=>r.sha256.length===64));});
+test('FASE11 manifest WEB incluye orden real y etapas embebidas',()=>{const m=migrationManifest('web');assert.equal(m.length,16);assert.equal(m[1].version,'ensureReturnsSchema');assert.equal(m.at(-1).version,'007_consistencia_costos');});
 test('FASE11 manifest no cambia al repetir la consulta offline',()=>assert.deepEqual(migrationManifest('web'),migrationManifest('web')));
 test('FASE11 tipo de DB inválido no genera plan',()=>assert.throws(()=>migrationManifest('otro')));
 const row={id:'FAKE_A',ruc:'20900000001',codigo:'control_a',estado:'ACTIVO',plan:'BASICO',suscripcion_id:'FAKE_SUB',suscripcion_requerida:true,estado_suscripcion:'ACTIVA',inicio:'2026-01-01',vencimiento:'2027-01-01',usuarios:1,sucursales:1};

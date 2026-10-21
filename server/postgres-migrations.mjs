@@ -15,7 +15,7 @@ export async function applyPostgresMigrations({pool,environment,failAfter=null}=
  await c.query(sql);await c.query('INSERT INTO pg_schema_migrations(version,sha256) VALUES($1,$2)',[version,sha]);
  if(failAfter===version)throw Object.assign(Error('Fallo inducido aislado.'),{code:'TEST_MIGRATION_FAILURE'});
  }
- await c.query('COMMIT');return {estado:'OK',migraciones:8};
+ await c.query('COMMIT');return {estado:'OK',migraciones:9};
  }catch(e){await c.query('ROLLBACK');throw Object.assign(Error('Migración detenida y revertida.'),{code:e.code||'MIGRATION_ERROR'});}
  finally{c.release();if(own)await pool.end();}
 }
