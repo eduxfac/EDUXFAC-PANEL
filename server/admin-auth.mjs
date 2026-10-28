@@ -22,6 +22,7 @@ export function applyPanelRolesMigration(db,{seedLegacy=true}={}){
  }catch(e){db.exec('ROLLBACK');throw e;}
 }
 export function requiredPermission(method,path){
+ if(path.startsWith('/api/sunat/'))return method==='GET'?'web.companies.read':'web.companies.write';
  if(path==='/api/logout'||path==='/api/admin/identity'||path==='/api/admin/profile/password')return null;
  if(path.startsWith('/api/admin/usuarios'))return 'admin.users.manage';
  if(path==='/api/admin/health')return 'health.read';

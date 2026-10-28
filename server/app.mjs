@@ -1,3 +1,4 @@
+import {panelSunat} from './sunat-service.mjs';
 import {panelEnvironment} from './environment-mode.mjs';
 import {boundedRequests} from './request-limits.mjs';
 import {openPanelDatabase} from './db.mjs';
@@ -68,14 +69,14 @@ export function createPanel({database=path.join(root,'data','panel.sqlite'),webA
     if(req.method==='POST'&&url.pathname.startsWith('/api/admin/recovery/')&&!recoveryLimit(req.socket.remoteAddress))return send(res,429,{error:'Demasiadas revisiones. Reintenta más tarde.'});
     try {
       if(req.method==='GET' && !url.pathname.startsWith('/api/')) {
-        const files={'/admin-users.js':['admin-users.js','text/javascript'],'/admin-dashboard.js':['admin-dashboard.js','text/javascript'],'/':['index.html','text/html'],'/app.js':['app.js','text/javascript'],'/web-onboarding.js':['web-onboarding.js','text/javascript'],'/web-company-states.js':['web-company-states.js','text/javascript'],'/web-plans.js':['web-plans.js','text/javascript'],'/web-subscriptions.js':['web-subscriptions.js','text/javascript'],'/integration-operations.js':['integration-operations.js','text/javascript'],'/style.css':['style.css','text/css'],'/favicon.svg':['favicon.svg','image/svg+xml']};
+        const files={'/sunat-batches.js':['sunat-batches.js','text/javascript'],'/sunat.js':['sunat.js','text/javascript'],'/admin-users.js':['admin-users.js','text/javascript'],'/admin-dashboard.js':['admin-dashboard.js','text/javascript'],'/':['index.html','text/html'],'/app.js':['app.js','text/javascript'],'/web-onboarding.js':['web-onboarding.js','text/javascript'],'/web-company-states.js':['web-company-states.js','text/javascript'],'/web-plans.js':['web-plans.js','text/javascript'],'/web-subscriptions.js':['web-subscriptions.js','text/javascript'],'/integration-operations.js':['integration-operations.js','text/javascript'],'/style.css':['style.css','text/css'],'/favicon.svg':['favicon.svg','image/svg+xml']};
         const file=files[url.pathname];if(!file)return send(res,404,{error:'No encontrado.'});
         res.writeHead(200,{'Content-Type':file[1]+'; charset=utf-8'});return res.end(readFileSync(path.join(root,'public',file[0])));
       }
       let body={};
       if(req.method==='POST') {
         if(req.headers.origin!==expectedOrigin || !req.headers['content-type']?.startsWith('application/json'))return send(res,403,{error:'Solicitud no autorizada.'});
-        let raw='';for await(const chunk of req){raw+=chunk;if(Buffer.byteLength(raw)>8192)return send(res,413,{error:'Solicitud demasiado grande.'});}
+        let raw='';for await(const chunk of req){raw+=chunk;if(Buffer.byteLength(raw)>(url.pathname.startsWith('/api/sunat/')?2*1024*1024:8192))return send(res,413,{error:'Solicitud demasiado grande.'});}
         try{body=JSON.parse(raw||'{}');}catch{return send(res,400,{error:'Datos inválidos.'});}
         if(!body || typeof body!=='object' || Array.isArray(body))return send(res,400,{error:'Datos inválidos.'});
       }
@@ -113,6 +114,7 @@ export function createPanel({database=path.join(root,'data','panel.sqlite'),webA
       if(!principal)return send(res,401,{error:'Inicia sesión para continuar.'});
       if(!adminAuth.authorize(principal,req.method,url.pathname))return send(res,403,{error:'No tienes permiso para esta acción.'});
       if(adminAuth.enabled){const authResult=adminAuth.handle(principal,req.method,url.pathname,body,token);if(authResult){if(authResult.cookie)res.setHeader('Set-Cookie',authResult.cookie);return send(res,authResult.status,authResult.data);}const technical=runtime.handle(principal,req.method,url.pathname,body);if(technical)return send(res,technical.status,technical.data);}
+      if(url.pathname.startsWith('/api/sunat/')){const r=await panelSunat({db,principal,method:req.method,path:url.pathname,query:Object.fromEntries(url.searchParams),body});return send(res,r.status,r.data);}
       if(url.pathname.startsWith('/api/admin/')){const r=adminRead.handle(req.method,url.pathname,Object.fromEntries(url.searchParams));return send(res,r.status,r.data);}
       if(url.pathname==='/api/web/operacion'||url.pathname.startsWith('/api/web/operacion/')){const actor=principal.username;const r=await operations.handle(req.method,url.pathname,body,Object.fromEntries(url.searchParams),actor);return send(res,r.status,r.data);}
       if(url.pathname==='/api/web/suscripciones'||url.pathname.startsWith('/api/web/suscripciones/')){const actor=principal.username;const r=await subscriptionService.handle(req.method,url.pathname,body,Object.fromEntries(url.searchParams),actor);return send(res,r.status,r.data);}

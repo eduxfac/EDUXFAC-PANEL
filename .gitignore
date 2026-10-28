@@ -27,3 +27,7 @@ node_modules/
 staging/
 
 demo/
+
+# Laboratorios aislados de pruebas
+tests/.fase8/
+tests/.native-fase*/
