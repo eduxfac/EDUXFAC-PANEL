@@ -4,7 +4,7 @@ const id=value=>{if(!/^[a-f0-9-]{36}$/.test(String(value)))throw Object.assign(E
 export async function panelSunat({db,principal,method,path,query,body}){
  try{
   const write=method!=='GET';if(!['SUPERADMIN','ADMIN'].includes(principal.role)&&write)return {status:403,data:{error:'Solo administradores pueden configurar SUNAT.'}};
-  if(path==='/api/sunat/empresas'&&method==='GET')return {status:200,data:{rows:db.prepare('SELECT id,razon_social,empresa_codigo,empresa_web_id,steps_json FROM web_empresas WHERE empresa_web_id IS NOT NULL ORDER BY razon_social').all().map(({steps_json,...r})=>({...r,sucursal_principal:JSON.parse(steps_json).sucursal||null}))}};
+  if(path==='/api/sunat/empresas'&&method==='GET')return {status:200,data:{rows:db.prepare('SELECT id,razon_social,ruc,empresa_codigo,empresa_web_id,steps_json FROM web_empresas WHERE empresa_web_id IS NOT NULL ORDER BY razon_social').all().map(({steps_json,...r})=>({...r,sucursal_principal:JSON.parse(steps_json).sucursal||null}))}};
   const match=path.match(/^\/api\/sunat\/([a-f0-9-]+)\/(branches|configuration|certificate|series|documents|batches)(?:\/([a-f0-9-]+)\/(sign|send|consult|events|files\/(xml|zip|cdr|pdf|ticket)))?$/);if(!match)return {status:404,data:{error:'Ruta SUNAT no encontrada.'}};
   const company=db.prepare('SELECT * FROM web_empresas WHERE id=?').get(id(match[1]));if(!company?.empresa_web_id)return {status:404,data:{error:'Empresa WEB no vinculada.'}};
   const remote=await createWebApiClient().fiscalBranches(company.empresa_web_id),branches=remote.rows;
