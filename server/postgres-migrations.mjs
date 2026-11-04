@@ -27,9 +27,9 @@ export async function grantPanelPrivileges(pool,{appRole,backupRole}){
  await pool.query('GRANT SELECT ON ALL SEQUENCES IN SCHEMA panel TO '+backupRole);
  await pool.query('REVOKE DELETE ON ALL TABLES IN SCHEMA panel FROM '+appRole);
  await pool.query('GRANT SELECT,INSERT,UPDATE ON ALL TABLES IN SCHEMA panel TO '+appRole);
- await pool.query('GRANT DELETE ON panel.sessions,panel.login_attempts,panel.panel_admin_sessions,panel.panel_auth_attempts TO '+appRole);
+ await pool.query('GRANT DELETE ON panel.sessions,panel.login_attempts,panel.panel_admin_sessions,panel.panel_auth_attempts,panel.perudevs_request_nonces TO '+appRole);
  await pool.query('GRANT USAGE,SELECT ON ALL SEQUENCES IN SCHEMA panel TO '+appRole);
  await pool.query('GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA panel TO '+appRole+','+backupRole);
- for(const table of ['history','license_events','web_state_history','web_commercial_history','integration_logs','panel_backup_events','web_subscription_history','web_manual_payments','web_payment_context','integration_attempts','panel_admin_events'])await pool.query('REVOKE UPDATE,DELETE ON panel.'+table+' FROM '+appRole);
+ for(const table of ['history','license_events','web_state_history','web_commercial_history','integration_logs','panel_backup_events','web_subscription_history','web_manual_payments','web_payment_context','integration_attempts','panel_admin_events','perudevs_usage_events'])await pool.query('REVOKE UPDATE,DELETE ON panel.'+table+' FROM '+appRole);
  await pool.query('REVOKE INSERT,UPDATE,DELETE ON panel.pg_schema_migrations,panel.schema_migrations,panel.web_schema_migrations FROM '+appRole);
 }

@@ -1,4 +1,5 @@
 import {panelSunat} from './sunat-service.mjs';
+import {createPerudevsService} from './perudevs-service.mjs';
 import {panelEnvironment} from './environment-mode.mjs';
 import {boundedRequests} from './request-limits.mjs';
 import {openPanelDatabase} from './db.mjs';
@@ -54,6 +55,7 @@ export function createPanel({database=path.join(root,'data','panel.sqlite'),webA
   const web=createWebOnboardingService({db,transaction,audit,webApiClient,commercialService,subscriptionService});
   const operations=createIntegrationOperations({db,transaction,webApiClient,stateService,commercialService,subscriptionService,environment:workerEnvironment});
   const adminRead=createAdminReadService({db,config:operations.config});
+  const perudevs=createPerudevsService({db,environment:dbEnvironment});
   const runtime=createPanelRuntime({db,transaction,auth:adminAuth,operations});
   const recoveryLimit=boundedRequests({max:30});
   const server=http.createServer(async(req,res)=>{
@@ -82,6 +84,9 @@ export function createPanel({database=path.join(root,'data','panel.sqlite'),webA
       }
       if(req.method==='GET' && url.pathname==='/api/environment')return send(res,200,panelEnvironment(dbEnvironment));
       if(req.method==='GET' && url.pathname==='/api/status')return send(res,200,{setup:!(adminAuth.enabled?db.prepare('SELECT id FROM panel_admin_users LIMIT 1').get():db.prepare('SELECT id FROM admin').get())});
+      if(req.method==='POST'&&url.pathname==='/api/internal/perudevs/lookup'){
+        const result=await perudevs.admin(req.method,url.pathname,body,req);return send(res,result.status,result.data);
+      }
       if(req.method==='POST' && ['/api/setup','/api/login'].includes(url.pathname)) {
         if(adminAuth.enabled){const r=adminAuth.publicLogin(url.pathname,body,req.socket.remoteAddress||'loopback');if(r.cookie)res.setHeader('Set-Cookie',r.cookie);return send(res,r.status,r.data);}
         const setup=url.pathname==='/api/setup';
@@ -113,6 +118,7 @@ export function createPanel({database=path.join(root,'data','panel.sqlite'),webA
       const principal=adminAuth.enabled?adminAuth.authenticate(token):token&&db.prepare('SELECT token_hash FROM sessions WHERE token_hash=? AND expires_at>?').get(digest(token),Date.now())?{id:1,username:db.prepare('SELECT username FROM admin').get().username,role:'SUPERADMIN',permissions:[],legacy:true}:null;
       if(!principal)return send(res,401,{error:'Inicia sesión para continuar.'});
       if(!adminAuth.authorize(principal,req.method,url.pathname))return send(res,403,{error:'No tienes permiso para esta acción.'});
+      if(url.pathname.startsWith('/api/perudevs/')){const result=await perudevs.admin(req.method,url.pathname,body,req);return send(res,result.status,result.data);}
       if(adminAuth.enabled){const authResult=adminAuth.handle(principal,req.method,url.pathname,body,token);if(authResult){if(authResult.cookie)res.setHeader('Set-Cookie',authResult.cookie);return send(res,authResult.status,authResult.data);}const technical=runtime.handle(principal,req.method,url.pathname,body);if(technical)return send(res,technical.status,technical.data);}
       if(url.pathname.startsWith('/api/sunat/')){const r=await panelSunat({db,principal,method:req.method,path:url.pathname,query:Object.fromEntries(url.searchParams),body});return send(res,r.status,r.data);}
       if(url.pathname.startsWith('/api/admin/')){const r=adminRead.handle(req.method,url.pathname,Object.fromEntries(url.searchParams));return send(res,r.status,r.data);}
