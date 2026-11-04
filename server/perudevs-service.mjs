@@ -74,7 +74,7 @@ async function lookup(db,environment,body,{fetchImpl=globalThis.fetch}={}){
  const url=new URL(endpoint);url.searchParams.set('document',document);url.searchParams.set('key',token);
  const start=Date.now();let outcome='ERROR_API';
  try{
-  const response=await fetchImpl(url,{method:'GET',headers:{Accept:'application/json'},signal:AbortSignal.timeout(9000),redirect:'error'});
+  const response=await fetchImpl(url,{method:'GET',headers:{Accept:'application/json'},signal:AbortSignal.timeout(operation==='RUC'?25000:10000),redirect:'error'});
   if(!response.ok){outcome='ERROR_HTTP';record(db,operation,outcome);throw fail(502,'PeruDevs no pudo completar la consulta. Reintenta más tarde.','PERUDEVS_PROVIDER_ERROR');}
   let payload;try{payload=await response.json();}catch{outcome='ERROR_API';record(db,operation,outcome);throw fail(502,'PeruDevs devolvió una respuesta inválida.','PERUDEVS_PROVIDER_ERROR');}
   if(payload?.estado===false&&!/no\s+(?:encontrad|existe)|sin resultados/i.test(String(payload.mensaje||''))){record(db,operation,'ERROR_API');throw fail(502,'PeruDevs no pudo completar la consulta. Revisa el saldo o la configuración del proveedor.','PERUDEVS_PROVIDER_ERROR');}
