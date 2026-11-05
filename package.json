@@ -7,12 +7,22 @@
     "start": "node server/app.mjs",
     "test": "node --test tests/*.test.mjs",
     "test:phase8": "node --test tests/roles-security.test.mjs tests/postgres-panel-native.test.mjs tests/phase8-operations.test.mjs",
-    "phase8:tool": "node server/phase8-tools.mjs"
+    "phase8:tool": "node server/phase8-tools.mjs",
+    "review:web-users": "node scripts/review-web-users.mjs",
+    "test:web-users": "node --test --test-concurrency=1 tests/web-user-management.test.mjs tests/web-user-http.test.mjs tests/web-user-ui.test.mjs tests/web-user-forced-change.test.mjs"
   },
   "engines": {
     "node": ">=24.0.0"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.2",
     "pg": "8.23.0"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8",
+    "express": "^5.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "linkedom": "^0.18.12",
+    "playwright-core": "^1.64.1"
   }
 }

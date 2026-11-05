@@ -1,0 +1,10 @@
+# WEB candidate only. Empty until authorized local integration. Not a .env.
+# Distinct credentials, same server/database, exact role names below.
+# eduxfac_user_admin: scoped metadata + EXECUTE reset; no direct user DML.
+WEB_USER_ADMIN_DATABASE_URL=
+# eduxfac_user_authorizer: EXECUTE authorize only; no user/event reads or writes.
+WEB_USER_AUTHORIZER_DATABASE_URL=
+# Existing WEB TLS verification settings apply to both pools.
+WEB_PG_TLS=verify-full
+WEB_PG_CA_FILE=
+# No actual passwords, tokens or existing configurations belong in this file.

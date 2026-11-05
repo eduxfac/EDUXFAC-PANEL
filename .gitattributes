@@ -1,0 +1,2 @@
+# Unified-diff artifacts require a single-space empty context line.
+integrations/web-user-management/*.patch whitespace=-blank-at-eol

@@ -31,3 +31,19 @@ demo/
 # Laboratorios aislados de pruebas
 tests/.fase8/
 tests/.native-fase*/
+
+# Configuración, evidencia y respaldos locales de la integración de usuarios.
+runtime/
+logs/
+backups/
+secrets/
+screenshots/
+test-results/
+playwright-report/
+certs/
+certificates/
+*.pem
+*.crt
+*.cer
+*.dump
+*.bak
