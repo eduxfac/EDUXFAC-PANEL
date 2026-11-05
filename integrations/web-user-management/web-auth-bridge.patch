@@ -1,0 +1,92 @@
+diff --git a/server/src/app.js b/server/src/app.js
+index 6d9ea8a..70f3847 100644
+--- a/server/src/app.js
++++ b/server/src/app.js
+@@ -194,7 +194,7 @@ app.post('/api/auth/login',async(req,res)=>{
+   if(typeof usuario!=='string'||!usuario.trim()||typeof password!=='string'||!password||password.length>256||(!code&&!document)||(code&&document))return res.status(400).json({error:'Indica empresa_codigo o RUC, usuario y contraseña.',code:'EMPRESA_REQUERIDA'});
+   const company=await pool.query('select id from empresas where '+(code?'lower(btrim(empresa_codigo))=lower($1)':'btrim(ruc)=$1')+' limit 2',[code||document]);
+   if(company.rows.length!==1)return res.status(401).json({error:'Empresa o credenciales inválidas.',code:'LOGIN_INVALIDO'});
+-  const {rows}=await pool.query(`select u.id,u.empresa_id,u.nombre,u.usuario,u.password_hash,coalesce((to_jsonb(u)->>'debe_cambiar_password')::boolean,false) debe_cambiar_password from usuarios u where u.empresa_id=$1 and lower(u.usuario)=lower($2) and u.activo=true limit 2`,[company.rows[0].id,usuario.trim()]);
++  const {rows}=await pool.query(`select u.id,u.empresa_id,u.nombre,u.usuario,u.password_hash,u.password_version,coalesce((to_jsonb(u)->>'debe_cambiar_password')::boolean,false) debe_cambiar_password from usuarios u where u.empresa_id=$1 and lower(u.usuario)=lower($2) and u.activo=true limit 2`,[company.rows[0].id,usuario.trim()]);
+   if(rows.length!==1||!(await bcrypt.compare(password,rows[0].password_hash)))return res.status(401).json({error:'Empresa o credenciales inválidas.',code:'LOGIN_INVALIDO'});
+   const executeLogin=()=>tx(async db=>{
+    const user=rows[0];const access=assertCompanyAccess(await getCompanyAccess(db,user.empresa_id,{lock:true}));
+diff --git a/server/src/auth.js b/server/src/auth.js
+index 2243d9f..023d9d4 100644
+--- a/server/src/auth.js
++++ b/server/src/auth.js
+@@ -1,3 +1,4 @@
++import {passwordVersionClaims,validPasswordVersion} from '../../integrations/web-user-management/session-version.mjs';
+ import jwt from 'jsonwebtoken';
+ import {pool,runWithUserContext} from './db.js';
+ import {UUID_PATTERN,getCompanyAccess,assertCompanyAccess,accessError,sendAccessError} from './company-access.js';
+@@ -9,7 +10,7 @@ const secret=()=>{
+ export function signUser(user){
+  if(!UUID_PATTERN.test(String(user.id))||!UUID_PATTERN.test(String(user.empresa_id))||!/^\d+$/.test(String(user.auth_version))||BigInt(user.auth_version)<1n)throw Error('Usuario sin autorización vigente.');
+  const restricted=user.debe_cambiar_password===true;
+- return jwt.sign({empresa_id:user.empresa_id,nombre:user.nombre,auth_version:String(user.auth_version),type:restricted?'web_password_change':'web_user'},secret(),{subject:user.id,audience:'eduxfac-web',algorithm:'HS256',expiresIn:restricted?'15m':'12h'});
++ return jwt.sign({...passwordVersionClaims(user),empresa_id:user.empresa_id,nombre:user.nombre,auth_version:String(user.auth_version),type:restricted?'web_password_change':'web_user'},secret(),{subject:user.id,audience:'eduxfac-web',algorithm:'HS256',expiresIn:restricted?'15m':'12h'});
+ }
+ async function session(req,res,next,{passwordChange=false}={}){
+  if(req.authenticated&&!passwordChange)return next();
+@@ -22,8 +23,9 @@ async function session(req,res,next,{passwordChange=false}={}){
+  }catch{return res.status(401).json({error:'Sesión inválida o vencida.',code:'SESION_INVALIDA'});}
+  try{
+   // to_jsonb permite conservar las pruebas y el esquema Fase 1 sin añadir columnas allí.
+-  const active=await pool.query("select u.id,u.nombre,coalesce((to_jsonb(u)->>'debe_cambiar_password')::boolean,false) debe_cambiar_password from usuarios u where u.id=$1 and u.empresa_id=$2 and u.activo=true",[claims.sub,claims.empresa_id]);
++  const active=await pool.query("select u.id,u.nombre,u.password_version,coalesce((to_jsonb(u)->>'debe_cambiar_password')::boolean,false) debe_cambiar_password from usuarios u where u.id=$1 and u.empresa_id=$2 and u.activo=true",[claims.sub,claims.empresa_id]);
+   if(!active.rows.length)throw accessError(401,'USUARIO_INACTIVO','Usuario desactivado o sesión inválida.');
++  if(!validPasswordVersion(claims,active.rows[0]))throw accessError(401,'SESION_REVOCADA','Sesión revocada. Inicia sesión nuevamente.');
+   if(passwordChange!==active.rows[0].debe_cambiar_password)throw accessError(passwordChange?401:403,'CAMBIO_PASSWORD_REQUERIDO',passwordChange?'El token de cambio ya no es válido.':'Debes cambiar tu contraseña temporal.');
+   assertCompanyAccess(await getCompanyAccess(pool,claims.empresa_id),{authVersion:claims.auth_version});
+   req.user={sub:active.rows[0].id,empresa_id:claims.empresa_id,nombre:active.rows[0].nombre,auth_version:claims.auth_version};req.authenticated=true;
+diff --git a/server/src/password-change.js b/server/src/password-change.js
+index 8612538..14261f6 100644
+--- a/server/src/password-change.js
++++ b/server/src/password-change.js
+@@ -7,12 +7,12 @@ export async function changeInitialPassword(req,res){
+   const b=req.body||{};
+   if(Object.keys(b).some(k=>!['password_temporal','password_nuevo'].includes(k))||typeof b.password_temporal!=='string'||typeof b.password_nuevo!=='string'||b.password_nuevo.length<12||Buffer.byteLength(b.password_nuevo,'utf8')>72||Buffer.byteLength(b.password_temporal,'utf8')>72||b.password_temporal===b.password_nuevo)throw accessError(400,'PASSWORD_INVALIDO','Usa una contraseña nueva de al menos 12 caracteres y hasta 72 bytes.');
+   const result=await tx(async db=>{
+-   const q=await db.query('select id,empresa_id,nombre,usuario,password_hash,debe_cambiar_password from usuarios where id=$1 and empresa_id=$2 and activo=true for update',[req.user.sub,req.user.empresa_id]);const user=q.rows[0];
++   const q=await db.query('select id,empresa_id,nombre,usuario,password_hash,password_version,debe_cambiar_password from usuarios where id=$1 and empresa_id=$2 and activo=true for update',[req.user.sub,req.user.empresa_id]);const user=q.rows[0];
+    if(!user||!user.debe_cambiar_password)throw accessError(401,'CAMBIO_PASSWORD_INVALIDO','Cambio inicial no disponible.');
+    if(!(await bcrypt.compare(b.password_temporal,user.password_hash)))throw accessError(401,'CREDENCIAL_INVALIDA','Contraseña temporal incorrecta.');
+-   await db.query('update usuarios set password_hash=$2,debe_cambiar_password=false,updated_at=now() where id=$1 and empresa_id=$3',[user.id,await bcrypt.hash(b.password_nuevo,12),user.empresa_id]);
++   const versioned=await db.query('update usuarios set password_hash=$2,debe_cambiar_password=false,password_version=password_version+1,updated_at=now() where id=$1 and empresa_id=$3 returning password_version',[user.id,await bcrypt.hash(b.password_nuevo,12),user.empresa_id]);
+    await db.query("insert into auditoria(empresa_id,usuario_id,accion,entidad,entidad_id,detalle) values($1,$2,'CAMBIO_PASSWORD_INICIAL','usuarios',$2,'{}'::jsonb)",[user.empresa_id,user.id]);
+-   return {token:signUser({...user,debe_cambiar_password:false,auth_version:req.user.auth_version}),user:{id:user.id,empresa_id:user.empresa_id,nombre:user.nombre,usuario:user.usuario},debe_cambiar_password:false};
++   return {token:signUser({...user,password_version:versioned.rows[0].password_version,debe_cambiar_password:false,auth_version:req.user.auth_version}),user:{id:user.id,empresa_id:user.empresa_id,nombre:user.nombre,usuario:user.usuario},debe_cambiar_password:false};
+   });res.json(result);
+  }catch(error){sendAccessError(res,error);}
+ }
+\ No newline at end of file
+diff --git a/server/scripts/global-rls.js b/server/scripts/global-rls.js
+index e08ea24..4877ef8 100644
+--- a/server/scripts/global-rls.js
++++ b/server/scripts/global-rls.js
+@@ -2,7 +2,7 @@ import {existsSync,readFileSync} from 'node:fs';
+ 
+ /** Reviewed FASE10 policy plan. Execution is explicitly restricted to an isolated Linux laboratory. */
+ const shared=['roles','permisos','rol_permisos'],metadata=['eduxfac_migraciones','web_schema_migrations'];
+-const privateTables=['clientes_admin','legacy_import_runs','legacy_mappings','operacion_workers'];
++const privateTables=['web_user_admin_events','clientes_admin','legacy_import_runs','legacy_mappings','operacion_workers'];
+ const direct=['empresas','sucursales','usuarios','categorias','laboratorios','productos','proveedores','clientes','compras','ventas','movimientos_inventario','auditoria','ordenes_compra','solicitudes_internas','transferencias','ajustes_inventario','secuencias_documento','empresa_config','empresa_config_avanzada','empresa_acceso','acciones_admin','acciones_admin_intentos','eventos_comerciales','suscripcion_eventos'];
+ const inherited={precios_producto:['producto_id','productos','id'],lotes:['producto_id','productos','id'],cajas:['sucursal_id','sucursales','id'],sesiones_caja:['caja_id','cajas','id'],movimientos_caja:['sesion_caja_id','sesiones_caja','id'],compra_detalles:['compra_id','compras','id'],venta_detalles:['venta_id','ventas','id'],venta_pagos:['venta_id','ventas','id'],orden_compra_detalles:['orden_compra_id','ordenes_compra','id'],solicitud_interna_detalles:['solicitud_id','solicitudes_internas','id'],transferencia_detalles:['transferencia_id','transferencias','id'],devoluciones_venta:null,devolucion_venta_detalles:['devolucion_id','devoluciones_venta','id'],producto_sucursal:['producto_id','productos','id'],usuario_sucursal:['usuario_id','usuarios','id'],usuario_permisos:['usuario_id','usuarios','id']};
+ const optionalCpe=['sunat_sucursales','sunat_outbox','venta_checkout_comandos'];
+@@ -43,13 +43,13 @@ if(new Set([tenant,service,auth,backup,migrator]).size!==5)throw Error('RLS_ROLE
+ const runtime=(await db.query('SELECT rolname,rolsuper,rolbypassrls FROM pg_roles WHERE rolname=ANY($1)',[[tenant,service,auth,backup,migrator]])).rows;if(runtime.length!==5||runtime.filter(r=>r.rolname!==migrator).some(r=>r.rolsuper||r.rolbypassrls))throw Error('RLS_RUNTIME_ROLE_UNSAFE');
+ const schema=await inspectWebSchema(db);if(schema.tables.some(t=>t.owner===tenant))throw Error('RLS_APP_MUST_NOT_OWN_TABLES');const known=[...GLOBAL_TABLES,...PRIVATE_TABLES,...TENANT_TABLES];
+ for(const t of schema.tables)if(!known.includes(t.name))throw Error('RLS_UNCLASSIFIED_TABLE:'+t.name);
+-for(const name of known)if(!optionalCpe.includes(name)&&!schema.tables.some(t=>t.name===name))throw Error('RLS_EXPECTED_TABLE_MISSING:'+name);
++for(const name of known)if(!optionalCpe.includes(name)&&name!=='web_user_admin_events'&&!schema.tables.some(t=>t.name===name))throw Error('RLS_EXPECTED_TABLE_MISSING:'+name);
+ if(!['DEMO','PILOTO','PRODUCCION'].includes(dataMode))throw Error('RLS_DATA_MODE_INVALID');const modeComment=JSON.stringify({eduxfac_data_mode:dataMode,purpose:dataMode==='DEMO'?'FASE10_ISOLATED_LINUX':'FASE11_PREPARACION_PILOTO'});const dbName=(await db.query('SELECT current_database() name')).rows[0].name;
+ const statements=["COMMENT ON DATABASE "+q(dbName)+" IS '"+modeComment+"'",'REVOKE ALL ON ALL TABLES IN SCHEMA public FROM PUBLIC','REVOKE ALL ON ALL SEQUENCES IN SCHEMA public FROM PUBLIC','REVOKE CREATE ON SCHEMA public FROM PUBLIC','REVOKE ALL ON ALL TABLES IN SCHEMA public FROM '+[tenant,service,auth,backup].map(q).join(','),'REVOKE ALL ON ALL SEQUENCES IN SCHEMA public FROM '+[tenant,service,auth,backup].map(q).join(',')];
+ statements.push('GRANT USAGE ON SCHEMA public TO '+[tenant,service,auth,backup].map(q).join(','));
+ const rows=[];
+ for(const t of schema.tables){const name=t.name,table='public.'+q(name),global=GLOBAL_TABLES.includes(name),priv=PRIVATE_TABLES.includes(name),access=!global&&!priv&&!tenantNoAccess.includes(name);
+-for(const old of (await db.query("SELECT policyname FROM pg_policies WHERE schemaname='public' AND tablename=$1",[name])).rows)statements.push('DROP POLICY '+q(old.policyname)+' ON '+table);
++for(const old of (await db.query("SELECT policyname FROM pg_policies WHERE schemaname='public' AND tablename=$1",[name])).rows)if(!old.policyname.startsWith('user_admin_'))statements.push('DROP POLICY '+q(old.policyname)+' ON '+table);
+ if(global){statements.push('ALTER TABLE '+table+' DISABLE ROW LEVEL SECURITY');if(shared.includes(name))statements.push('GRANT SELECT ON '+table+' TO '+[tenant,service,auth].map(q).join(','));statements.push('GRANT SELECT ON '+table+' TO '+q(backup));rows.push({name,category:'A_GLOBAL_SISTEMA',rls:false,tenant:shared.includes(name)?'SELECT_SHARED':'DENIED',owner:null,branch:[],reason:shared.includes(name)?'Catálogo común, sólo lectura':'Ledger migraciones: sólo migrador/backup'});continue;}
+ statements.push('ALTER TABLE '+table+' ENABLE ROW LEVEL SECURITY','ALTER TABLE '+table+' FORCE ROW LEVEL SECURITY');
+ statements.push('CREATE POLICY f10_migrator ON '+table+' FOR ALL TO '+q(migrator)+' USING(true) WITH CHECK(true)','CREATE POLICY f10_backup ON '+table+' FOR SELECT TO '+q(backup)+' USING(true)');

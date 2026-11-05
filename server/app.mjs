@@ -1,3 +1,4 @@
+import {createWebUserService} from './web-user-service.mjs';
 import {panelSunat} from './sunat-service.mjs';
 import {createPerudevsService} from './perudevs-service.mjs';
 import {panelEnvironment} from './environment-mode.mjs';
@@ -25,8 +26,9 @@ const digest = value => createHash('sha256').update(value).digest('hex');
 function passwordHash(password) { const salt=randomBytes(16).toString('hex'); return salt+':'+scryptSync(password,salt,64).toString('hex'); }
 function passwordMatches(password, hash) { const [salt,key]=hash.split(':'); return timingSafeEqual(scryptSync(password,salt,64),Buffer.from(key,'hex')); }
 
-export function createPanel({database=path.join(root,'data','panel.sqlite'),webApiClient,prepareWebTestSchema=false,prepareWebStateTestSchema=false,prepareWebPlanTestSchema=false,prepareWebSubscriptionTestSchema=false,prepareWebOperationTestSchema=false,workerEnvironment=process.env,dbEngine,dbEnvironment=process.env,preparePhase8TestSchema=false}={}) {
+export function createPanel({database=path.join(root,'data','panel.sqlite'),webApiClient,prepareWebTestSchema=false,prepareWebStateTestSchema=false,prepareWebPlanTestSchema=false,prepareWebSubscriptionTestSchema=false,prepareWebOperationTestSchema=false,workerEnvironment=process.env,dbEngine,dbEnvironment=process.env,preparePhase8TestSchema=false,seedTestDatabase}={}) {
   if((prepareWebTestSchema||prepareWebStateTestSchema||prepareWebPlanTestSchema||prepareWebSubscriptionTestSchema||prepareWebOperationTestSchema||preparePhase8TestSchema)&&(process.env.NODE_ENV!=='test'||database!==':memory:'))throw Error('El esquema WEB de prueba solo se prepara en SQLite en memoria.');
+  if(seedTestDatabase&&(process.env.NODE_ENV!=='test'||database!==':memory:'||typeof seedTestDatabase!=='function'))throw Error('Fixture solo en memoria y NODE_ENV=test.');
   const engine=dbEngine||dbEnvironment.PANEL_DB_ENGINE||'sqlite';
   if(preparePhase8TestSchema&&engine!=='sqlite')throw Error('Esquema de prueba solo SQLite en memoria.');
   if(dbEnvironment.NODE_ENV==='production'&&engine!=='postgres')throw Error('Producción requiere PostgreSQL explícito.');
@@ -47,6 +49,7 @@ export function createPanel({database=path.join(root,'data','panel.sqlite'),webA
   if(prepareWebSubscriptionTestSchema||prepareWebOperationTestSchema||preparePhase8TestSchema)applyWebSubscriptionMigrations(db);
   if(prepareWebOperationTestSchema||preparePhase8TestSchema)applyIntegrationMigrations(db);
   if(preparePhase8TestSchema){applyAdminDashboardMigrations(db);applyPanelRolesMigration(db);}
+  if(seedTestDatabase)seedTestDatabase(db);
   const adminAuth=createAdminAuth({db,transaction,environment:dbEnvironment});
   const licensing=createLicensingService({db,transaction,audit});
   const subscriptionService=createWebSubscriptionsService({db,transaction,webApiClient});
@@ -57,6 +60,8 @@ export function createPanel({database=path.join(root,'data','panel.sqlite'),webA
   const adminRead=createAdminReadService({db,config:operations.config});
   const perudevs=createPerudevsService({db,environment:dbEnvironment});
   const runtime=createPanelRuntime({db,transaction,auth:adminAuth,operations});
+  const webUsers=createWebUserService({db,webApiClient});
+  const webUserResetLimit=boundedRequests({max:10});
   const recoveryLimit=boundedRequests({max:30});
   const server=http.createServer(async(req,res)=>{
     res.setHeader('Cache-Control','no-store');
@@ -71,7 +76,7 @@ export function createPanel({database=path.join(root,'data','panel.sqlite'),webA
     if(req.method==='POST'&&url.pathname.startsWith('/api/admin/recovery/')&&!recoveryLimit(req.socket.remoteAddress))return send(res,429,{error:'Demasiadas revisiones. Reintenta más tarde.'});
     try {
       if(req.method==='GET' && !url.pathname.startsWith('/api/')) {
-        const files={'/sunat-batches.js':['sunat-batches.js','text/javascript'],'/sunat.js':['sunat.js','text/javascript'],'/admin-users.js':['admin-users.js','text/javascript'],'/admin-dashboard.js':['admin-dashboard.js','text/javascript'],'/':['index.html','text/html'],'/app.js':['app.js','text/javascript'],'/web-onboarding.js':['web-onboarding.js','text/javascript'],'/web-company-states.js':['web-company-states.js','text/javascript'],'/web-plans.js':['web-plans.js','text/javascript'],'/web-subscriptions.js':['web-subscriptions.js','text/javascript'],'/integration-operations.js':['integration-operations.js','text/javascript'],'/style.css':['style.css','text/css'],'/favicon.svg':['favicon.svg','image/svg+xml']};
+        const files={'/web-users.css':['web-users.css','text/css'],'/web-users.js':['web-users.js','text/javascript'],'/sunat-batches.js':['sunat-batches.js','text/javascript'],'/sunat.js':['sunat.js','text/javascript'],'/admin-users.js':['admin-users.js','text/javascript'],'/admin-dashboard.js':['admin-dashboard.js','text/javascript'],'/':['index.html','text/html'],'/app.js':['app.js','text/javascript'],'/web-onboarding.js':['web-onboarding.js','text/javascript'],'/web-company-states.js':['web-company-states.js','text/javascript'],'/web-plans.js':['web-plans.js','text/javascript'],'/web-subscriptions.js':['web-subscriptions.js','text/javascript'],'/integration-operations.js':['integration-operations.js','text/javascript'],'/style.css':['style.css','text/css'],'/favicon.svg':['favicon.svg','image/svg+xml']};
         const file=files[url.pathname];if(!file)return send(res,404,{error:'No encontrado.'});
         res.writeHead(200,{'Content-Type':file[1]+'; charset=utf-8'});return res.end(readFileSync(path.join(root,'public',file[0])));
       }
@@ -120,6 +125,11 @@ export function createPanel({database=path.join(root,'data','panel.sqlite'),webA
       if(!adminAuth.authorize(principal,req.method,url.pathname))return send(res,403,{error:'No tienes permiso para esta acción.'});
       if(url.pathname.startsWith('/api/perudevs/')){const result=await perudevs.admin(req.method,url.pathname,body,req);return send(res,result.status,result.data);}
       if(adminAuth.enabled){const authResult=adminAuth.handle(principal,req.method,url.pathname,body,token);if(authResult){if(authResult.cookie)res.setHeader('Set-Cookie',authResult.cookie);return send(res,authResult.status,authResult.data);}const technical=runtime.handle(principal,req.method,url.pathname,body);if(technical)return send(res,technical.status,technical.data);}
+      if(/^\/api\/web\/empresas\/[^/]+\/usuarios(?:\/|$)/.test(url.pathname)){
+        if(req.method==='POST'&&!webUserResetLimit(principal.id+':'+(req.socket.remoteAddress||'')))return send(res,429,{error:'Demasiados restablecimientos. Espera antes de reintentar.'});
+        const r=await webUsers.handle({principal,method:req.method,path:url.pathname,body,ip:req.socket.remoteAddress});
+        return send(res,r?.status||404,r?.data||{error:'Ruta no encontrada.'});
+      }
       if(url.pathname.startsWith('/api/sunat/')){const r=await panelSunat({db,principal,method:req.method,path:url.pathname,query:Object.fromEntries(url.searchParams),body});return send(res,r.status,r.data);}
       if(url.pathname.startsWith('/api/admin/')){const r=adminRead.handle(req.method,url.pathname,Object.fromEntries(url.searchParams));return send(res,r.status,r.data);}
       if(url.pathname==='/api/web/operacion'||url.pathname.startsWith('/api/web/operacion/')){const actor=principal.username;const r=await operations.handle(req.method,url.pathname,body,Object.fromEntries(url.searchParams),actor);return send(res,r.status,r.data);}
