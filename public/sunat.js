@@ -26,8 +26,10 @@
  el('cpeBody').querySelectorAll('[data-document]').forEach(button=>button.onclick=async()=>{const doc=button.dataset.document,a=button.dataset.action;try{if(['sign','send','consult'].includes(a)){if(a==='send'&&!confirm('¿Enviar este comprobante a '+params().environment+'?'))return;await action(()=>api(root()+'/documents/'+doc+'/'+a,{}));}else if(a==='events'){const r=await api(root()+'/documents/'+doc+'/events');el('cpeEvents').textContent=JSON.stringify(r.rows,null,2);}else{const file=await api(root()+'/documents/'+doc+'/files/'+a),bytes=Uint8Array.from(atob(file.base64),c=>c.charCodeAt(0)),url=URL.createObjectURL(new Blob([bytes]));const link=document.createElement('a');link.href=url;link.download=file.filename;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}}catch(e){message(e.message,true);}});
  }catch(e){if(requestId===requestRevision)message(e.message,true);}}
  async function action(fn){try{message('Procesando…');await fn();await load();}catch(e){message(e.message,true);}}
- async function branches(){try{const r=await api(companyRoot()+'/branches');if(version!==generation)return;el('cpeBranch').innerHTML=r.rows.map(b=>'<option value="'+esc(b.id)+'">'+esc(b.nombre)+'</option>').join('');if(r.rows.length)await load();}catch(e){message(e.message,true);}}
- el('cpeBranch').onchange=load;el('cpeEnvironment').onchange=load;await branches();
+ let fiscalBranches=[];
+ function selectBranchEnvironment(){const configured=fiscalBranches.find(b=>b.id===el('cpeBranch').value)?.sunat?.ambiente;el('cpeEnvironment').value=['beta','produccion'].includes(configured)?configured:'beta';}
+ async function branches(){try{const r=await api(companyRoot()+'/branches');if(version!==generation)return;fiscalBranches=r.rows;el('cpeBranch').innerHTML=r.rows.map(b=>'<option value="'+esc(b.id)+'">'+esc(b.nombre)+'</option>').join('');if(r.rows.length){selectBranchEnvironment();await load();}}catch(e){message(e.message,true);}}
+ el('cpeBranch').onchange=()=>{selectBranchEnvironment();return load();};el('cpeEnvironment').onchange=load;await branches();
  }catch(e){message(e.message,true);}}
  window.panelSunat={render,cancel:()=>generation++};
 })();
