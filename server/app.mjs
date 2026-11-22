@@ -1,3 +1,4 @@
+import {isPanelPage} from './frontend-routes.mjs';
 import {panelSunat} from './sunat-service.mjs';
 import {createPerudevsService} from './perudevs-service.mjs';
 import {panelEnvironment} from './environment-mode.mjs';
@@ -71,8 +72,8 @@ export function createPanel({database=path.join(root,'data','panel.sqlite'),webA
     if(req.method==='POST'&&url.pathname.startsWith('/api/admin/recovery/')&&!recoveryLimit(req.socket.remoteAddress))return send(res,429,{error:'Demasiadas revisiones. Reintenta más tarde.'});
     try {
       if(req.method==='GET' && !url.pathname.startsWith('/api/')) {
-        const files={'/sunat-batches.js':['sunat-batches.js','text/javascript'],'/sunat.js':['sunat.js','text/javascript'],'/admin-users.js':['admin-users.js','text/javascript'],'/admin-dashboard.js':['admin-dashboard.js','text/javascript'],'/':['index.html','text/html'],'/app.js':['app.js','text/javascript'],'/web-onboarding.js':['web-onboarding.js','text/javascript'],'/web-company-states.js':['web-company-states.js','text/javascript'],'/web-plans.js':['web-plans.js','text/javascript'],'/web-subscriptions.js':['web-subscriptions.js','text/javascript'],'/integration-operations.js':['integration-operations.js','text/javascript'],'/style.css':['style.css','text/css'],'/favicon.svg':['favicon.svg','image/svg+xml']};
-        const file=files[url.pathname];if(!file)return send(res,404,{error:'No encontrado.'});
+        const files={'/router.js':['router.js','text/javascript'],'/sunat-batches.js':['sunat-batches.js','text/javascript'],'/sunat.js':['sunat.js','text/javascript'],'/admin-users.js':['admin-users.js','text/javascript'],'/admin-dashboard.js':['admin-dashboard.js','text/javascript'],'/':['index.html','text/html'],'/app.js':['app.js','text/javascript'],'/web-onboarding.js':['web-onboarding.js','text/javascript'],'/web-company-states.js':['web-company-states.js','text/javascript'],'/web-plans.js':['web-plans.js','text/javascript'],'/web-subscriptions.js':['web-subscriptions.js','text/javascript'],'/integration-operations.js':['integration-operations.js','text/javascript'],'/style.css':['style.css','text/css'],'/favicon.svg':['favicon.svg','image/svg+xml']};
+        const file=isPanelPage(url.pathname)?['index.html','text/html']:files[url.pathname];if(!file)return send(res,404,{error:'No encontrado.'});
         res.writeHead(200,{'Content-Type':file[1]+'; charset=utf-8'});return res.end(readFileSync(path.join(root,'public',file[0])));
       }
       let body={};
