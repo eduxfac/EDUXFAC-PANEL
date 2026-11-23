@@ -21,7 +21,8 @@ export function applyWebSubscriptionMigrations(db){
 export function subscriptionDisplay(s,now=Date.now()){
  const end=Date.parse(s.fecha_vencimiento),remaining=Number.isFinite(end)?Math.max(0,Math.ceil((end-now)/86400000)):null;
  return {...s,precio_asignado:money(s.precio_asignado_centavos),renovacion_automatica:false,dias_restantes:remaining,
- estado_efectivo:s.estado==='ACTIVA'&&end<=now?'VENCIDA':s.estado};
+ dias_vencidos:Number.isFinite(end)&&end<=now?Math.floor((now-end)/86400000)+1:0,fin_gracia:Number.isFinite(end)?new Date(end+3*86400000).toISOString():null,
+ estado_efectivo:s.estado==='ACTIVA'&&end<=now?(now<end+3*86400000?'EN_GRACIA':'VENCIDA'):s.estado};
 }
 export function createWebSubscriptionsService({db,transaction,webApiClient}){
  const remote=()=>webApiClient||createWebApiClient(),busy=new Set();
@@ -128,7 +129,7 @@ export function createWebSubscriptionsService({db,transaction,webApiClient}){
    ready();
    if(method==='GET'&&route==='/api/web/suscripciones'){
     const filter=query.estado||'',windowDays=Number(query.dias||7),q=String(query.q||'').toLowerCase();
-    if(filter&&!['ACTIVA','POR_VENCER','VENCIDA','SUSPENDIDA','CANCELADA','PENDIENTE'].includes(filter)||![7,15,30].includes(windowDays)||q.length>120)throw fail(400,'Filtro inválido.');
+    if(filter&&!['ACTIVA','POR_VENCER','EN_GRACIA','VENCIDA','SUSPENDIDA','CANCELADA','PENDIENTE'].includes(filter)||![7,15,30].includes(windowDays)||q.length>120)throw fail(400,'Filtro inválido.');
     const rows=db.prepare('SELECT s.*,w.razon_social,coalesce(w.estado_local,w.estado) estado_empresa,c.name cliente_nombre,p.codigo plan_codigo FROM web_subscriptions s JOIN web_empresas w ON w.id=s.empresa_id JOIN clients c ON c.id=w.cliente_id JOIN web_planes p ON p.id=s.plan_id ORDER BY s.fecha_vencimiento,s.empresa_id').all().map(s=>subscriptionDisplay(s)).filter(s=>(!q||(s.cliente_nombre+' '+s.razon_social).toLowerCase().includes(q))&&(!filter||(filter==='POR_VENCER'?s.estado_efectivo==='ACTIVA'&&s.dias_restantes<=windowDays:s.estado_efectivo===filter)));
     return {status:200,data:{rows,total:rows.length}};
    }

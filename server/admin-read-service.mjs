@@ -12,13 +12,13 @@ export function createAdminReadService({db,config={},clock=()=>Date.now()}){
  const now=()=>new Date(clock()).toISOString();
  const companies=()=>`SELECT w.id,w.cliente_id,c.name cliente_nombre,w.razon_social,w.nombre_comercial,w.ruc,w.empresa_codigo,w.empresa_web_id,
  coalesce(w.estado_local,w.estado) estado_registrado,
- CASE WHEN coalesce(w.estado_local,w.estado)='ACTIVO' AND s.estado='ACTIVA' AND julianday(s.fecha_vencimiento)<=julianday(:ahora) THEN 'VENCIDO' ELSE coalesce(w.estado_local,w.estado) END estado,
+ CASE WHEN coalesce(w.estado_local,w.estado)='ACTIVO' AND s.estado='ACTIVA' AND julianday(s.fecha_vencimiento)+3<=julianday(:ahora) THEN 'VENCIDO' ELSE coalesce(w.estado_local,w.estado) END estado,
  w.estado_web,w.created_at,w.ultima_sincronizacion,w.web_auth_version,
  a.plan_codigo,a.precio_asignado_centavos,a.limite_sucursales_asignado,a.limite_usuarios_asignado,a.multisucursal,
  json_extract(CASE WHEN json_valid(u.uso_json) THEN u.uso_json ELSE '{}' END,'$.sucursales_activas') sucursales_usadas,
  json_extract(CASE WHEN json_valid(u.uso_json) THEN u.uso_json ELSE '{}' END,'$.usuarios_activos') usuarios_usados,u.updated_at uso_actualizado,
  s.id suscripcion_id,s.fecha_inicio,s.fecha_vencimiento,s.ultima_renovacion,
- CASE WHEN s.estado='ACTIVA' AND julianday(s.fecha_vencimiento)<=julianday(:ahora) THEN 'VENCIDA' ELSE s.estado END estado_suscripcion,
+ CASE WHEN s.estado='ACTIVA' AND julianday(s.fecha_vencimiento)<=julianday(:ahora) THEN CASE WHEN julianday(s.fecha_vencimiento)+3>julianday(:ahora) THEN 'EN_GRACIA' ELSE 'VENCIDA' END ELSE s.estado END estado_suscripcion,
  CASE WHEN EXISTS(SELECT 1 FROM integration_queue q WHERE q.empresa_id=w.id AND q.estado='ERROR' AND(q.retryable=0 OR q.intentos>=q.max_intentos)) THEN 'ERROR'
  WHEN EXISTS(SELECT 1 FROM integration_queue q WHERE q.empresa_id=w.id AND(q.estado IN('SOLICITADO','PENDIENTE','REINTENTO') OR(q.estado='ERROR' AND q.retryable=1 AND q.intentos<q.max_intentos))) THEN 'PENDIENTE'
  WHEN r.estado IS NOT NULL THEN r.estado ELSE 'PENDIENTE' END sincronizacion,r.checked_at sincronizacion_actualizada
@@ -76,7 +76,7 @@ export function createAdminReadService({db,config={},clock=()=>Date.now()}){
  if(f.producto)where.push(f.producto==='AMBOS'?'tiene_web=1 AND tiene_escritorio=1':f.producto==='WEB'?'tiene_web=1':'tiene_escritorio=1');
  if(f.search)add("(coalesce(name,'')||' '||coalesce(business_name,'')||' '||coalesce(ruc,'')||' '||coalesce(dni,'')||' '||coalesce(document_number,'')||' '||coalesce(email,'')||' '||coalesce(phone,'')) LIKE :search ESCAPE '\\'",'search',like(f.search));
  }else if(['empresas','suscripciones'].includes(kind)){
- sql=companies();params.ahora=now();en('sincronizacion',['SINCRONIZADO','PENDIENTE','ERROR','DESINCRONIZADO']);en('estado',kind==='empresas'?['ACTIVO','PENDIENTE','SUSPENDIDO','VENCIDO','CANCELADO']:['ACTIVA','POR_VENCER','VENCIDA','SUSPENDIDA','CANCELADA','PENDIENTE']);
+ sql=companies();params.ahora=now();en('sincronizacion',['SINCRONIZADO','PENDIENTE','ERROR','DESINCRONIZADO']);en('estado',kind==='empresas'?['ACTIVO','PENDIENTE','SUSPENDIDO','VENCIDO','CANCELADO']:['ACTIVA','POR_VENCER','EN_GRACIA','VENCIDA','SUSPENDIDA','CANCELADA','PENDIENTE']);
  if(kind==='suscripciones')where.push('suscripcion_id IS NOT NULL');
  if(f.estado==='POR_VENCER')where.push("estado_suscripcion='ACTIVA' AND julianday(fecha_vencimiento)>julianday(:ahora) AND julianday(fecha_vencimiento)<=julianday(:ahora)+7");
  else add((kind==='empresas'?'estado':'estado_suscripcion')+'=:estado','estado',f.estado);
@@ -107,7 +107,7 @@ export function createAdminReadService({db,config={},clock=()=>Date.now()}){
  const from=' FROM ('+sql+')'+(where.length?' WHERE '+where.join(' AND '):'');
  const total=db.prepare('SELECT count(*) n'+from).get(params).n;
  let rows=db.prepare('SELECT *'+from+' ORDER BY '+sorts[kind][f.sort]+',id ASC LIMIT :limite OFFSET :offset').all({...params,limite:f.page_size,offset:(f.page-1)*f.page_size});
- if(kind==='suscripciones')rows=rows.map(s=>({...s,dias_restantes:Math.max(0,Math.ceil((Date.parse(s.fecha_vencimiento)-clock())/86400000)),ultimo_pago:db.prepare(`SELECT importe_centavos,moneda,fecha,metodo FROM web_manual_payments WHERE empresa_id=? ORDER BY ${paidDay('fecha')} DESC,created_at DESC,id DESC LIMIT 1`).get(s.id)||null}));
+ if(kind==='suscripciones')rows=rows.map(s=>({...s,dias_vencidos:Date.parse(s.fecha_vencimiento)<=clock()?Math.floor((clock()-Date.parse(s.fecha_vencimiento))/86400000)+1:0,dias_restantes:Math.max(0,Math.ceil((Date.parse(s.fecha_vencimiento)-clock())/86400000)),ultimo_pago:db.prepare(`SELECT importe_centavos,moneda,fecha,metodo FROM web_manual_payments WHERE empresa_id=? ORDER BY ${paidDay('fecha')} DESC,created_at DESC,id DESC LIMIT 1`).get(s.id)||null}));
  return {status:200,data:{rows,total,page:f.page,page_size:f.page_size,total_pages:Math.max(1,Math.ceil(total/f.page_size)),has_next:f.page*f.page_size<total,has_previous:f.page>1,generated_at:now(),timezone:'America/Lima'}};
  }
  function dashboard(){

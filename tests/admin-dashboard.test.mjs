@@ -59,7 +59,7 @@ test('FASE 7: dashboard, filtros y consultas paginadas aisladas',async t=>{
  await t.test('filtro con error',()=>assert.equal(list('empresas',{error:'si'}).total,1));
  await t.test('cuotas completas por sucursales o usuarios',()=>assert.ok(list('empresas',{cuotas:'si'}).total>0));
  await t.test('por vencer en 7 días excluye suspendidas y vencidas',()=>assert.equal(list('suscripciones',{proximas:'7'}).total,1));
- await t.test('vencida por fecha aunque worker no cambie estado',()=>{const r=list('empresas',{estado:'VENCIDO'}).rows[0];assert.equal(r.id,f.ids[2]);assert.equal(r.estado_registrado,'ACTIVO');});
+ await t.test('fecha vencida dentro de gracia mantiene empresa activa',()=>{assert.equal(list('empresas',{estado:'VENCIDO'}).rows.length,0);const r=list('suscripciones',{estado:'EN_GRACIA'}).rows[0];assert.equal(r.id,f.ids[2]);assert.equal(r.estado,'ACTIVO');});
  await t.test('suscripción incluye último pago registrado',()=>assert.equal(list('suscripciones',{search:'Botica 01'}).rows[0].ultimo_pago.importe_centavos,5900));
  await t.test('pagos filtran empresa y método',()=>assert.equal(list('pagos',{empresa:f.ids[1],metodo:'TRANSFERENCIA'}).total,1));
  await t.test('pagos filtran nombre de empresa sin pedir UUID',()=>assert.equal(list('pagos',{empresa:'Botica 02'}).total,1));
@@ -73,7 +73,7 @@ test('FASE 7: dashboard, filtros y consultas paginadas aisladas',async t=>{
  await t.test('historial filtra producto empresa acción actor resultado',()=>assert.equal(list('historial',{producto:'WEB',empresa:f.ids[0],accion:'ALTA',administrador:'admin_demo',resultado:'APLICADO'}).total,1));
  await t.test('historial general no expone detalle libre potencialmente sensible',()=>assert.ok(!JSON.stringify(list('historial',{producto:'PANEL'})).includes('FAKE_SECRET')));
  await t.test('recuperación vacía no inventa solicitudes',()=>assert.equal(list('recuperacion').total,0));
- await t.test('dashboard cuenta clientes y estados efectivos',()=>{const d=f.svc.dashboard();assert.equal(d.clientes_totales,45);assert.equal(d.metrics.empresas.ACTIVO,41);assert.equal(d.metrics.empresas.VENCIDO,1);assert.equal(d.metrics.empresas.SUSPENDIDO,1);});
+ await t.test('dashboard cuenta clientes y estados efectivos',()=>{const d=f.svc.dashboard();assert.equal(d.clientes_totales,45);assert.equal(d.metrics.empresas.ACTIVO,42);assert.equal(d.metrics.empresas.VENCIDO,0);assert.equal(d.metrics.empresas.SUSPENDIDO,1);});
  await t.test('dashboard ingresos de mes separados de previsión',()=>{const d=f.svc.dashboard();assert.equal(d.metrics.ingresos_mes_centavos,11800);assert.equal(d.metrics.ingresos_anterior_centavos,22800);assert.equal(d.por_plan.find(p=>p.codigo==='BASICO').esperado_centavos,41*5900);});
  await t.test('dashboard altas respeta frontera de mes America/Lima',()=>assert.equal(f.svc.dashboard().metrics.altas_mes,44));
  await t.test('dashboard devuelve seis meses sin duplicar',()=>assert.equal(new Set(f.svc.dashboard().series.map(s=>s.mes)).size,6));
@@ -103,4 +103,13 @@ test('FASE 7: permisos HTTP y recursos frontend sin base real',async t=>{
 });
 test('FASE 7: esquema WEB ausente mantiene métricas desconocidas sin migrar',()=>{
  const db=new DatabaseSync(':memory:');try{db.exec(readFileSync(new URL('../database/schema.sql',import.meta.url),'utf8'));applyLicensingMigrations(db,new URL('../database/migrations/',import.meta.url).pathname.replace(/^\/([A-Z]:)/,'$1').replaceAll('%20',' '));const svc=createAdminReadService({db});assert.equal(svc.dashboard().metrics,null);assert.equal(svc.dashboard().web_disponible,false);assert.equal(svc.handle('GET','/api/admin/clientes').status,200);assert.equal(svc.handle('GET','/api/admin/empresas').status,503);assert.equal(db.prepare("SELECT count(*) n FROM sqlite_master WHERE name='web_empresas'").get().n,0);}finally{db.close();}
+});
+
+// A paid period remains commercially expired during grace, but access stays active.
+test('Panel paginado: gracia mantiene empresa activa y filtro separa bloqueo definitivo',()=>{
+ const f=fixture();try{
+  const result=f.svc.handle('GET','/api/admin/suscripciones',{estado:'EN_GRACIA'});assert.equal(result.status,200);assert.equal(result.data.total,1);assert.equal(result.data.rows[0].id,f.ids[2]);assert.equal(result.data.rows[0].estado,'ACTIVO');assert.equal(result.data.rows[0].dias_vencidos,2);
+  f.db.prepare('UPDATE web_subscriptions SET fecha_vencimiento=? WHERE empresa_id=?').run(new Date(now-3*86400000).toISOString(),f.ids[2]);
+  const expired=f.svc.handle('GET','/api/admin/suscripciones',{estado:'VENCIDA'});assert.equal(expired.status,200);assert.equal(expired.data.total,1);assert.equal(expired.data.rows[0].estado,'VENCIDO');
+ }finally{f.close();}
 });
